@@ -4,9 +4,17 @@ import isoweek
 import collection as col
 
 # parametrizar el estadistico del reductor (espacial) que ahora es mean - linea 62
+# listo (o la idea sería que le pases un string y te genere el reductor?)
+
 # parametrizar el estadistico que tomo de la serie de tiempo, que ahora es mean - linea 75 p.ej
+# listo - acá hice lo del string. está mejor? habría que agregar más estadísticos.
+
 # pasarle a time_series_df una geometria en vez de coordenadas. y otra funcion hace la geometria
+# listo - podemos hacer más geometrias, tipo un circulo, etc.
+#       - de la forma en que está hecho, se puede crear la geo que quiera con ee y usar esa
+
 # quizas parametrizar las constantes de time_series_df
+# usar dayofyear para weekofyear
 
 col.initialize()
 
@@ -50,20 +58,20 @@ def add_date_info(df):
   df['Weekday']=pd.DatetimeIndex(df['Timestamp']).weekday
   return df
 
+def geometry_rectangle(lon_w,lat_s,lon_e,lat_n):
+    return ee.Geometry.Rectangle([lon_w,lat_s,lon_e,lat_n],geodesic= False,proj='EPSG:4326')
 
-def time_series_df(lon_w,lat_s,lon_e,lat_n,date_ini,date_end, file_name = 'NO2trop_series.csv'):
+def time_series_df(roi,date_ini,date_end, file_name = 'NO2trop_series.csv', reducer = ee.Reducer.mean()):
     #satelite COPERNICUS, modo offline, elijo el no2
     collection_name = 'COPERNICUS/S5P/OFFL/L3_NO2'
     #dentro de eso elijo la densidad de columna troposferica, pero podria elegir otras:
     variable  = 'tropospheric_NO2_column_number_density'
     var_name  = 'NO2_trop_mean'
 
-    roi = ee.Geometry.Rectangle([lon_w,lat_s,lon_e,lat_n],geodesic= False,proj='EPSG:4326')
-
-    reduce_mean = create_reduce_region_function(geometry=roi, reducer=ee.Reducer.mean(), scale=1113.2, crs='EPSG:4326')
+    reduce_function = create_reduce_region_function(geometry=roi, reducer=reducer, scale=1113.2, crs='EPSG:4326')
 
     collection_filter=ee.ImageCollection(collection_name).select(variable).filterDate(date_ini,date_end)
-    collection_fc = ee.FeatureCollection(collection_filter.map(reduce_mean)).filter(ee.Filter.notNull(collection_filter.first().bandNames()))
+    collection_fc = ee.FeatureCollection(collection_filter.map(reduce_function)).filter(ee.Filter.notNull(collection_filter.first().bandNames()))
     collection_dict=fc_to_dict(collection_fc).getInfo()
 
     df = pd.DataFrame(collection_dict)
@@ -72,8 +80,12 @@ def time_series_df(lon_w,lat_s,lon_e,lat_n,date_ini,date_end, file_name = 'NO2tr
     df.to_csv(file_name,index=False)
     return df
 
-def ts_dailydf(df, file_name='dailymean_df.csv'):
-    df_daily=df.groupby(['Year','Month','Day']).mean().reset_index()
+def ts_dailydf(df, file_name='dailymean_df.csv', statistic = 'mean'):
+    assert(statistic == 'mean' or statistic == 'median')
+    if statistic == 'mean' :
+        df_daily=df.groupby(['Year','Month','Day']).mean().reset_index()
+    elif statistic == 'median':
+        df_daily=df.groupby(['Year','Month','Day']).median().reset_index()
     df_daily_c=df.groupby(['Year','Month','Day']).count().reset_index()
     df_daily['N_obs']=df_daily_c[df.columns[0]]
     df_daily['Fecha_datetime']=pd.to_datetime(df_daily['Year'].astype(str)+'-'+df_daily['Month'].astype(str)+'-'+df_daily['Day'].astype(str),format='%Y-%m-%d')
@@ -88,9 +100,13 @@ def ts_dailydf(df, file_name='dailymean_df.csv'):
     df_daily.to_csv(file_name,index=False)
     return df_daily
 
-def ts_monthlydf(df, file_name='monthlymean_df.csv'):
-    df_daily=ts_dailydf(df)
-    df_monthly=df_daily.groupby(['Year','Month']).mean().reset_index()
+def ts_monthlydf(df, file_name='monthlymean_df.csv', statistic = 'mean'):
+    assert(statistic == 'mean' or statistic == 'median')
+    df_daily=ts_dailydf(df, statistic = statistic)
+    if statistic == 'mean' :
+        df_monthly=df_daily.groupby(['Year','Month']).mean().reset_index()
+    elif statistic == 'median':
+        df_monthly=df_daily.groupby(['Year','Month']).median().reset_index()
     df_monthly_c=df_daily.groupby(['Year','Month']).count().reset_index()
     df_monthly['Fecha_datetime']=pd.to_datetime(df_monthly['Year'].astype(str)+'-'+df_monthly['Month'].astype(str),format='%Y-%m')
     df_monthly.drop(columns=['Day','Weekday','N_obs'],inplace=True)
@@ -98,11 +114,15 @@ def ts_monthlydf(df, file_name='monthlymean_df.csv'):
     df_monthly.to_csv(file_name,index=False)
     return df_monthly
 
-def ts_weeklydf(df, file_name='weeklymean_df.csv'):
-    df_daily=ts_dailydf(df)
+def ts_weeklydf(df, file_name='weeklymean_df.csv', statistic = 'mean'):
+    assert(statistic == 'mean' or statistic == 'median')
+    df_daily=ts_dailydf(df, statistic = statistic)
     day=df_daily.Fecha_datetime.dt.date.values
     df_daily['WeekOfYear']=[isoweek.Week.withdate(d) for d in day] #ver si se puede hacer más rapido, a partir de day of year
-    df_weekly=df_daily.groupby(['WeekOfYear']).mean().reset_index()
+    if statistic == 'mean' :
+        df_weekly=df_daily.groupby(['WeekOfYear']).mean().reset_index()
+    if statistic == 'median':
+        df_weekly=df_daily.groupby(['WeekOfYear']).median().reset_index()
     df_weekly_c=df_daily.groupby(['WeekOfYear']).count().reset_index()
     df_weekly['N_days']=df_weekly_c[df.columns[0]].astype(int)
     df_weekly['Fecha_datetime']=[isoweek.Week.monday(s) for s in df_weekly.WeekOfYear.values]
