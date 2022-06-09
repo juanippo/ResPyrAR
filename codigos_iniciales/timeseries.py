@@ -2,6 +2,8 @@ import ee
 import pandas as pd
 import isoweek
 import collection as col
+import datetime
+from dateutil.relativedelta import relativedelta
 
 # parametrizar el estadistico del reductor (espacial) que ahora es mean - linea 62
 # listo (o la idea sería que le pases un string y te genere el reductor?)
@@ -13,8 +15,12 @@ import collection as col
 # listo - podemos hacer más geometrias, tipo un circulo, etc.
 #       - de la forma en que está hecho, se puede crear la geo que quiera con ee y usar esa
 
-# quizas parametrizar las constantes de time_series_df
 # usar dayofyear para weekofyear
+# maso - weekofyear queda con otro formato: 28 en vez de 2018W28, está bien?
+#      - hay un warning que tengo que arreglar
+#      - me dice que no es eficiente :( 
+
+# quizas parametrizar las constantes de time_series_df
 
 col.initialize()
 
@@ -56,6 +62,7 @@ def add_date_info(df):
   df['Day'] = pd.DatetimeIndex(df['Timestamp']).day
   #df['DOY'] = pd.DatetimeIndex(df['Timestamp']).dayofyear
   df['Weekday']=pd.DatetimeIndex(df['Timestamp']).weekday
+  #df['WeekOfYear']=pd.DatetimeIndex(df['Timestamp']).week
   return df
 
 def geometry_rectangle(lon_w,lat_s,lon_e,lat_n):
@@ -117,18 +124,25 @@ def ts_monthlydf(df, file_name='monthlymean_df.csv', statistic = 'mean'):
 def ts_weeklydf(df, file_name='weeklymean_df.csv', statistic = 'mean'):
     assert(statistic == 'mean' or statistic == 'median')
     df_daily=ts_dailydf(df, statistic = statistic)
-    day=df_daily.Fecha_datetime.dt.date.values
-    df_daily['WeekOfYear']=[isoweek.Week.withdate(d) for d in day] #ver si se puede hacer más rapido, a partir de day of year
+    df_daily['Fecha_datetime']=df_daily.Fecha_datetime.dt.date.values - df_daily['Weekday'].apply(lambda x : datetime.timedelta(days=x))
+    #df_daily['WeekOfYear']=[isoweek.Week.withdate(d) for d in day] #ver si se puede hacer más rapido, a partir de day of year
+    df_daily['WeekOfYear']=pd.DatetimeIndex(df_daily['Fecha_datetime']).week
+    #df_daily['WeekOfYear']=pd.DatetimeIndex(df_daily['Fecha_datetime']).isocalendar().week
+    print(df_daily)
     if statistic == 'mean' :
-        df_weekly=df_daily.groupby(['WeekOfYear']).mean().reset_index()
+        df_weekly=df_daily.groupby(['WeekOfYear','Fecha_datetime']).mean().reset_index()
     if statistic == 'median':
-        df_weekly=df_daily.groupby(['WeekOfYear']).median().reset_index()
+        df_weekly=df_daily.groupby(['WeekOfYear','Fecha_datetime']).median().reset_index()
     df_weekly_c=df_daily.groupby(['WeekOfYear']).count().reset_index()
     df_weekly['N_days']=df_weekly_c[df.columns[0]].astype(int)
-    df_weekly['Fecha_datetime']=[isoweek.Week.monday(s) for s in df_weekly.WeekOfYear.values]
+    #df_weekly['Fecha_datetime']=[isoweek.Week.monday(s) for s in df_weekly.WeekOfYear.values]
+    #df_weekly['Fecha_datetime']=df_weekly['WeekOfYear'].apply(lambda x : x+1)
+    print(df_weekly)
     df_weekly.drop(columns=['Year','Month','Day','Weekday','N_obs'],inplace=True)
     df_weekly.to_csv(file_name,index=False)
     return df_weekly
+
+
 
 #def ts_graph(df, timeinterval=daily):
 #    if timeinterval ==
