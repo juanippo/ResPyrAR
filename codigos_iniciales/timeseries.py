@@ -16,9 +16,7 @@ from dateutil.relativedelta import relativedelta
 #       - de la forma en que está hecho, se puede crear la geo que quiera con ee y usar esa
 
 # usar dayofyear para weekofyear
-# maso - weekofyear queda con otro formato: 28 en vez de 2018W28, está bien?
-#      - hay un warning que tengo que arreglar
-#      - me dice que no es eficiente :( 
+# listo,pero - weekofyear queda con otro formato: 28 en vez de 2018W28, está bien?
 
 # quizas parametrizar las constantes de time_series_df
 
@@ -124,10 +122,11 @@ def ts_monthlydf(df, file_name='monthlymean_df.csv', statistic = 'mean'):
 def ts_weeklydf(df, file_name='weeklymean_df.csv', statistic = 'mean'):
     assert(statistic == 'mean' or statistic == 'median')
     df_daily=ts_dailydf(df, statistic = statistic)
-    df_daily['Fecha_datetime']=df_daily.Fecha_datetime.dt.date.values - df_daily['Weekday'].apply(lambda x : datetime.timedelta(days=x))
-    #df_daily['WeekOfYear']=[isoweek.Week.withdate(d) for d in day] #ver si se puede hacer más rapido, a partir de day of year
-    df_daily['WeekOfYear']=pd.DatetimeIndex(df_daily['Fecha_datetime']).week
-    #df_daily['WeekOfYear']=pd.DatetimeIndex(df_daily['Fecha_datetime']).isocalendar().week
+    #retrocedo tantos días según el día de la semana que sea
+    df_daily['Fecha_datetime']= df_daily['Fecha_datetime'] - df_daily['Weekday'].apply(lambda x : datetime.timedelta(days=x))
+    #df_daily['WeekOfYear']=[isoweek.Week.withdate(d) for d in day]
+    #df_daily['WeekOfYear']=pd.DatetimeIndex(df_daily['Fecha_datetime']).week
+    df_daily['WeekOfYear']=pd.Int64Index(pd.DatetimeIndex(df_daily['Fecha_datetime']).isocalendar().week)
     print(df_daily)
     if statistic == 'mean' :
         df_weekly=df_daily.groupby(['WeekOfYear','Fecha_datetime']).mean().reset_index()
