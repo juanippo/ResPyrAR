@@ -1,5 +1,6 @@
 import collection as col
 import timeseries as ts
+import figures as figu
 import csv
 
 def compare_csv(filename1, filename2):
@@ -14,6 +15,9 @@ def compare_csv(filename1, filename2):
 
 initial_date = '2018-07-01'
 final_date = '2018-10-01'
+
+#initial_date='2018-07-01'
+#final_date   ='2020-12-01'
 
 col.initialize()
 col.collection_mean(initial_date, final_date) #esta funcion igual creo que la vamos a sacar
@@ -30,8 +34,8 @@ roi = ts.geometry_rectangle(lon_w,lat_s,lon_e,lat_n)
 print("geometría creada")
 
 df = ts.time_series_df(roi,initial_date,final_date,file_name='../actual_outcomes/raw.csv')
-ts.ts_dailydf(df, file_name= '../actual_outcomes/daily.csv')
-ts.ts_monthlydf(df, file_name= '../actual_outcomes/monthly.csv')
+df_daily = ts.ts_dailydf(df, file_name= '../actual_outcomes/daily.csv')
+"""ts.ts_monthlydf(df, file_name= '../actual_outcomes/monthly.csv')
 ts.ts_weeklydf(df, file_name= '../actual_outcomes/weekly.csv')
 
 print("time_series_df, daily, monthly y weekly corrieron")
@@ -49,3 +53,12 @@ ts.ts_monthlydf(df, statistic = 'median')
 ts.ts_weeklydf(df, statistic = 'median')
 
 print("daily, monthly y weekly con median corrieron")
+"""
+figu.plot_daily_series(df_daily)
+
+inicio = '2018-08-15'
+fin = '2018-09-06'
+
+figu.plot_daily_series(df_daily, start = inicio, end = fin, show = True)
+
+figu.plot_autocorr(df_daily, show = True)
