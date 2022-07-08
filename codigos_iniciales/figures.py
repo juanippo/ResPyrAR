@@ -3,11 +3,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import pearsonr
 
-#agrego opcion para que devuelva el objeto de plt?
-
+# agrego opcion para que devuelva el objeto de plt?
+# sm.graphics.tsa.plot_acf(df_autocor[columna], lags=22,missing='conservative') esto es mucho más cortito y quizás mas lindo pero
+# no marca los significativos (para autocorr)
 
 # date format: YYYY-MM-DD
-def plot_daily_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, filename = 'seriediaria.png', width = 15, height = 4, show = False):
+def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, filename = 'series.png', width = 15, height = 4, show = False):
 
 	gas = 'NO2_trop'
 	columna='NO2_trop_mean'
@@ -20,7 +21,7 @@ def plot_daily_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, file
 	plt.close("all")
 	fig, ax = plt.subplots(figsize=figsize)
 	ax.plot(df.Fecha_datetime,df[columna],'ro:')
-	fig.suptitle('Serie diaria de '+gasname)
+	fig.suptitle('Serie de '+gasname)
 	ax.grid(axis='y',alpha=0.4)
 	plt.ylabel(gasname+ ' (mol/m2)')
 	
@@ -29,7 +30,7 @@ def plot_daily_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, file
 		plt.show()
 
 
-def plot_autocorr(df, lags = 22, alpha = 0.01, width = 30, height=5, filename = 'acf.png', show = False):
+def plot_autocorr(df, lags, alpha = 0.01, width = 30, height=5, filename = 'autocorrelogram.png', show = False):
 
 	columna='NO2_trop_mean'
 	color_significativo = 'blue'
@@ -69,4 +70,27 @@ def plot_autocorr(df, lags = 22, alpha = 0.01, width = 30, height=5, filename = 
 	if show:
 		plt.show()
 
-		
+#df_m un df agrupado por mes, que contiene a ambos años enteros
+def barplot_year_cmp(df_m, year1, year2, width = 10, height=4, filename='compared_series.png', show = False):
+
+	columna = 'NO2_trop_mean'
+	no2_year1 = df_m[df_m.Year==year1][columna].values
+	no2_year2 = df_m[df_m.Year==year2][columna].values
+	months = ['J','F','M','A','M','J','J','A','S','O','N','D']
+	df_bar = pd.DataFrame({str(year1): no2_year1,str(year2): no2_year2}, index=months)
+
+	ax = df_bar.plot.bar(rot=0,color=['r','y'],figsize=(width,height))
+	plt.grid(axis='y',alpha=0.5)
+
+	plt.savefig(filename,bbox_inches='tight',dpi=500)
+	if show:
+		plt.show()
+
+def interanual_variation(df_m, year1, year2, month_num):
+
+	columna = 'NO2_trop_mean'
+	no2_year1 = df_m[df_m.Year==year1][columna].values
+	no2_year2 = df_m[df_m.Year==year2][columna].values
+	
+	var =np.round(100*(no2_year2[month_num]-no2_year1[month_num])/no2_year1[month_num],decimals=2)
+	return var
