@@ -30,38 +30,38 @@ def create_reduce_region_function(geometry,
                                   maxPixels=1e13,
                                   tileScale=4):
 
-  def reduce_region_function(img):
+    def reduce_region_function(img):
 
-    stat = img.reduceRegion(
-        reducer=reducer,
-        geometry=geometry,
-        scale=scale,
-        crs=crs,
-        bestEffort=bestEffort,
-        maxPixels=maxPixels,
-        tileScale=tileScale)
+        stat = img.reduceRegion(
+            reducer=reducer,
+            geometry=geometry,
+            scale=scale,
+            crs=crs,
+            bestEffort=bestEffort,
+            maxPixels=maxPixels,
+            tileScale=tileScale)
 
-    return ee.Feature(geometry, stat).set({'millis': img.date().millis()})
-  return reduce_region_function
+        return ee.Feature(geometry, stat).set({'millis': img.date().millis()})
+    return reduce_region_function
 
 def fc_to_dict(fc):
-  prop_names = fc.first().propertyNames()
-  prop_lists = fc.reduceColumns(
-      reducer=ee.Reducer.toList().repeat(prop_names.size()),
+    prop_names = fc.first().propertyNames()
+    prop_lists = fc.reduceColumns(
+        reducer=ee.Reducer.toList().repeat(prop_names.size()),
       selectors=prop_names).get('list')
 
-  return ee.Dictionary.fromLists(prop_names, prop_lists)
+    return ee.Dictionary.fromLists(prop_names, prop_lists)
 
 # Function to add date variables to DataFrame.
 def add_date_info(df):
-  df['Timestamp'] = pd.to_datetime(df['millis'], unit='ms')
-  df['Year'] = pd.DatetimeIndex(df['Timestamp']).year
-  df['Month'] = pd.DatetimeIndex(df['Timestamp']).month
-  df['Day'] = pd.DatetimeIndex(df['Timestamp']).day
-  #df['DOY'] = pd.DatetimeIndex(df['Timestamp']).dayofyear
-  df['Weekday']=pd.DatetimeIndex(df['Timestamp']).weekday
-  #df['WeekOfYear']=pd.DatetimeIndex(df['Timestamp']).week
-  return df
+    df['Timestamp'] = pd.to_datetime(df['millis'], unit='ms')
+    df['Year'] = pd.DatetimeIndex(df['Timestamp']).year
+    df['Month'] = pd.DatetimeIndex(df['Timestamp']).month
+    df['Day'] = pd.DatetimeIndex(df['Timestamp']).day
+    #df['DOY'] = pd.DatetimeIndex(df['Timestamp']).dayofyear
+    df['Weekday']=pd.DatetimeIndex(df['Timestamp']).weekday
+    #df['WeekOfYear']=pd.DatetimeIndex(df['Timestamp']).week
+    return df
 
 def geometry_rectangle(lon_w,lat_s,lon_e,lat_n):
     return ee.Geometry.Rectangle([lon_w,lat_s,lon_e,lat_n],geodesic= False,proj='EPSG:4326')

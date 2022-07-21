@@ -37,7 +37,7 @@ print("geometría creada")
 df = ts.time_series_df(roi,initial_date,final_date,file_name='../actual_outcomes/raw.csv')
 df_daily = ts.ts_dailydf(df, file_name= '../actual_outcomes/daily.csv')
 df_monthly = ts.ts_monthlydf(df, file_name= '../actual_outcomes/monthly.csv')
-df_w = ts.ts_weeklydf(df, file_name= '../actual_outcomes/weekly.csv')
+#df_w = ts.ts_weeklydf(df, file_name= '../actual_outcomes/weekly.csv')
 
 print("time_series_df, daily, monthly y weekly corrieron")
 """
@@ -55,18 +55,18 @@ ts.ts_weeklydf(df, statistic = 'median')
 
 print("daily, monthly y weekly con median corrieron")
 """
-#figu.plot_series(df_daily)
+figu.plot_series(df_daily)
 #figu.plot_series(df_w, filename = "weekly_series.png", show = True)
 
 
 inicio = '2018-08-15'
 fin = '2018-09-06'
 
-#figu.plot_series(df_daily, start = inicio, end = fin, show = True)
+figu.plot_series(df_daily, start = inicio, end = fin, show = True)
 
-#figu.plot_autocorr(df_daily, lags = 22, show = True)
+figu.plot_autocorr(df_daily, lags = 22, show = True)
 
-figu.barplot_year_cmp(df_monthly, 2019, 2020, show=True)
+figu.barplot_year_cmp(df_monthly, 2019, 2020, show = True)
 
 var = figu.interanual_variation(df_monthly, 2019, 2020, month_num = 3)
 print("La variación interanual para abril 2020-2019 es: ",var)

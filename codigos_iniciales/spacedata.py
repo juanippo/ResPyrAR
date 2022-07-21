@@ -4,10 +4,23 @@ import ee
 import collection as col
 import matplotlib.cm as mpl
 import matplotlib.pyplot as plt
+import cartopy
+import cartopy.crs as ccrs                   # for projections
+import cartopy.feature as cfeature           # for features
+import cartopy.io.shapereader as shapereader
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+from cartopy.feature.nightshade import Nightshade
+
 
 col.initialize()
 print("inicializo")
+
+######## Parametros de entrada ###############
+
 ciudad = 'Buenos Aires'
+
+width = 12
+height = 6
 
 lat_n=-34.52
 lat_s=-34.73
@@ -19,11 +32,17 @@ delta=0    ## este parámetro es solo para agrandar o achicar la region de maner
 roi = ee.Geometry.Rectangle([np.round(lon_w-delta,2), np.round(lat_s-delta,2), np.round(lon_e+delta,2), np.round(lat_n+delta,2)],geodesic= False,proj='EPSG:4326')
 print("hice geo")
 
+
+shapefile = "../data/gadm36_ARG_2.shp" 
+
 ##Este código es para tener una visualización espacial del no2. Vamos a tomar medias mensuales
 
 inicio='2019-04-01'
 final ='2019-05-01' #la fecha final que sea 1 mes despues, así calcula la media mensual
 
+###############################################
+
+data = shapereader.Reader(shapefile)
 
 collection=ee.ImageCollection('COPERNICUS/S5P/OFFL/L3_NO2').select('tropospheric_NO2_column_number_density').filterDate(inicio,final)
 
@@ -52,8 +71,8 @@ no2=no2.reshape(nrows,ncols)
 LATS=lats.reshape(nrows,ncols)
 LONS=lons.reshape(nrows,ncols)
 
-###repetimos para 2020###
 
+###repetimos para 2020###
 ##Podríamos hacer lo mismo, pero las matrices de lat y lon son  iguales. Una forma más corta
 ##que permite obtener el array de los valores (pero que no nos da la lat y lon) es la funcion
 ##ee.Image.sampleRectangle. Ya viene con las dimensiones correctas y no hay que reshapear
@@ -71,7 +90,7 @@ cmap=mpl.get_cmap('seismic',100)
 
 print("descargue")
 
-fig, axs = plt.subplots(nrows=1,ncols=2, subplot_kw={'projection': ccrs.PlateCarree()},figsize=(12,6))
+fig, axs = plt.subplots(nrows=1,ncols=2, subplot_kw={'projection': ccrs.PlateCarree()},figsize=(width,height))
 fig.subplots_adjust(top=0.89,right=0.87,wspace=0.05, hspace=0.07)
 
 plt.suptitle('Concentración media mensual de NO2 troposférico (mol/m2)',fontsize=15,y=0.93)

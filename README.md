@@ -16,3 +16,12 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 ## Instrucciones de uso
 . [Estaría bueno hacer un archivo de requirements para instalar todas las librerías necesarias en un solo paso]
 . Para autenticar seguir las instrucciones de este link: https://developers.google.com/earth-engine/guides/python_install#expandable-2
+
+<!--  fijarse qué de esto va y articularlo
+apt-get install libproj-dev proj-data proj-bin
+apt-get install libgeos-dev
+pip install cython
+pip install cartopy
+apt-get -qq install python-cartopy python3-cartopy
+pip uninstall -y shapely    # cartopy and shapely aren't friends (early 2020)
+pip install shapely --no-binary shapely
