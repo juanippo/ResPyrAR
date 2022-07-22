@@ -19,6 +19,11 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 
 
 ## TO DO
+. el plot de space lo paso a figures, no?
+. y le agrego opciones save y show
+. convertir a geotff, etc
+. arrancar con la mascara
+. poner todo en ingles? o todo en español?
 . antes de cerrarlo, cambiar los nombres por default de los archivos de salida para que no vayan a otra carpeta (por si no existe)
 
 <!--  fijarse qué de esto va y articularlo

@@ -4,11 +4,6 @@ import numpy as np
 from scipy.stats import pearsonr
 import statsmodels.api as sm
 
-# agrego opcion para que devuelva el objeto de plt?
-# usar sm.graphics.tsa.plot_acf para autocor
-
-# nombres en ingles?
-
 
 # date format: YYYY-MM-DD
 def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, filename = '../figures/series.png', width = 15, height = 4, show = False, save = True):

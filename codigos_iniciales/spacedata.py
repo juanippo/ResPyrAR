@@ -6,8 +6,8 @@ import matplotlib
 import matplotlib.cm as mpl
 import matplotlib.pyplot as plt
 import cartopy
-import cartopy.crs as ccrs                   # for projections
-import cartopy.feature as cfeature           # for features
+import cartopy.crs as ccrs             
+import cartopy.feature as cfeature           
 import cartopy.io.shapereader as shapereader
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from cartopy.feature.nightshade import Nightshade
