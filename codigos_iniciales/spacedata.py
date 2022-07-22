@@ -2,6 +2,7 @@
 import numpy as np
 import ee
 import collection as col
+import matplotlib
 import matplotlib.cm as mpl
 import matplotlib.pyplot as plt
 import cartopy
@@ -10,100 +11,79 @@ import cartopy.feature as cfeature           # for features
 import cartopy.io.shapereader as shapereader
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from cartopy.feature.nightshade import Nightshade
-
+from copy import deepcopy
 
 col.initialize()
-print("inicializo")
 
-######## Parametros de entrada ###############
+def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean'):
 
-ciudad = 'Buenos Aires'
+	if collection == None:
+		collection= col.get_collection(start,end)
+	else:
+		collection = collection.filterDate(start,end)
+	###si quisiéramos otra cosa que no sea la media, hay que cambiar el parámetro .mean() !!
+	if statistic == 'mean':	
+		collection_img=collection.mean().setDefaultProjection(collection.first().projection())
+	elif statistic == 'median':
+		collection_img=collection.median().setDefaultProjection(collection.first().projection())
+	else:
+		print("Error: statistic not valid")
 
-width = 12
-height = 6
+	latlon=ee.Image.pixelLonLat().addBands(collection_img)
+	latlon_new = latlon.reduceRegion(reducer=ee.Reducer.toList(), geometry=roi, maxPixels=1e13,scale=1113.2)
 
-lat_n=-34.52
-lat_s=-34.73
-lon_w=-58.56
-lon_e=-58.33 
+	no2 = np.array((ee.Array(latlon_new.get('tropospheric_NO2_column_number_density')).getInfo()))
+	lats = np.array((ee.Array(latlon_new.get("latitude")).getInfo()))
+	lons = np.array((ee.Array(latlon_new.get("longitude")).getInfo()))  
 
-delta=0    ## este parámetro es solo para agrandar o achicar la region de manera proporcional.
+	##reshape para que quede tres matrices tipo meshgrid
+	uniqueLats = np.unique(lats)
+	uniqueLons = np.unique(lons)
+	ncols = len(uniqueLons)    
+	nrows = len(uniqueLats)
 
-roi = ee.Geometry.Rectangle([np.round(lon_w-delta,2), np.round(lat_s-delta,2), np.round(lon_e+delta,2), np.round(lat_n+delta,2)],geodesic= False,proj='EPSG:4326')
-print("hice geo")
+	no2=no2.reshape(nrows,ncols)
+	LATS=lats.reshape(nrows,ncols)
+	LONS=lons.reshape(nrows,ncols)
 
-
-shapefile = "../data/gadm36_ARG_2.shp" 
-
-##Este código es para tener una visualización espacial del no2. Vamos a tomar medias mensuales
-
-inicio='2019-04-01'
-final ='2019-05-01' #la fecha final que sea 1 mes despues, así calcula la media mensual
-
-###############################################
-
-data = shapereader.Reader(shapefile)
-
-collection=ee.ImageCollection('COPERNICUS/S5P/OFFL/L3_NO2').select('tropospheric_NO2_column_number_density').filterDate(inicio,final)
-
-###si quisiéramos otra cosa que no sea la media, hay que cambiar el parámetro .mean() !!
-collection_img=collection.mean().setDefaultProjection(collection.first().projection())
+	return no2, LATS, LONS
 
 
-##Este codigo es un poco un lío pero básicamente lo que hace, una vez obtenida la imagen de GEE
-##en una determinada region de interes (roi),transforma en un array de numpy y tambien
-##obtiene las matrices de lat y lon, el tema es que hay que reshapear porque viene todo en una tira de datos. 
+def plot_map(no2, lats, lons, shapefile, title = 'Concentración media de NO2 troposférico (mol/m2)', width = 8, height = 6, font_size = 15, save = True, show = False):
 
-latlon=ee.Image.pixelLonLat().addBands(collection_img)
-latlon_new = latlon.reduceRegion(reducer=ee.Reducer.toList(), geometry=roi, maxPixels=1e13,scale=1113.2)
+	data = shapereader.Reader(shapefile)
 
-no2 = np.array((ee.Array(latlon_new.get('tropospheric_NO2_column_number_density')).getInfo()))
-lats = np.array((ee.Array(latlon_new.get("latitude")).getInfo()))
-lons = np.array((ee.Array(latlon_new.get("longitude")).getInfo()))  
+	vmax=np.max(no2)
 
-##reshape para que quede tres matrices tipo meshgrid
-uniqueLats = np.unique(lats)
-uniqueLons = np.unique(lons)
-ncols = len(uniqueLons)    
-nrows = len(uniqueLats)
+	##colores
+	cmap=mpl.get_cmap('seismic',100)  
 
-no2=no2.reshape(nrows,ncols)
-LATS=lats.reshape(nrows,ncols)
-LONS=lons.reshape(nrows,ncols)
+	fig, ax = plt.subplots(subplot_kw={'projection': ccrs.PlateCarree()},figsize=(width,height))
 
+	ax.add_feature(cartopy.feature.COASTLINE)
+	ax.add_feature(cartopy.feature.BORDERS)
+	ax.add_geometries(data.geometries(), crs=ccrs.Geodetic(), edgecolor='k', facecolor='none')
+	ax.set_extent([np.min(lons), np.max(lons), np.min(lats), np.max(lats)])
+	cs=ax.pcolormesh(lons,lats,no2,vmin=0,vmax=vmax, cmap=cmap)
+	
+	raw_fig = deepcopy(fig) 
+	raw_ax = deepcopy(ax)
+	
+	fig.subplots_adjust(top=0.89,right=0.87,wspace=0.05, hspace=0.07)
 
-###repetimos para 2020###
-##Podríamos hacer lo mismo, pero las matrices de lat y lon son  iguales. Una forma más corta
-##que permite obtener el array de los valores (pero que no nos da la lat y lon) es la funcion
-##ee.Image.sampleRectangle. Ya viene con las dimensiones correctas y no hay que reshapear
+	fig.suptitle(title,fontsize=font_size)
 
-#no2_2020=np.array(collection_img2.sampleRectangle(roi).get('tropospheric_NO2_column_number_density').getInfo())
+	cbar_ax = fig.add_axes([0.88, 0.15, 0.02, 0.7])
+	fmt = matplotlib.ticker.ScalarFormatter(useMathText=True)
+	fmt.set_powerlimits((0, 0))
+	fig.colorbar(cs, cax=cbar_ax,ticks=np.linspace(0,vmax,10),format=fmt)
+	
+	plt.close(raw_fig)
+	plt.close(plt.figure(3))
 
-##para tomar una unica escala de colores tomo el valor maximo de ambos arrays
-vmax=np.max(no2)
-
-###Rutina de graficado###
-
-##colores
-cmap=mpl.get_cmap('seismic',100)  
-
-
-print("descargue")
-
-fig, axs = plt.subplots(nrows=1,ncols=2, subplot_kw={'projection': ccrs.PlateCarree()},figsize=(width,height))
-fig.subplots_adjust(top=0.89,right=0.87,wspace=0.05, hspace=0.07)
-
-plt.suptitle('Concentración media mensual de NO2 troposférico (mol/m2)',fontsize=15,y=0.93)
-
-cs=axs[0].pcolormesh(LONS,LATS,no2,vmin=0,vmax=vmax, cmap=cmap)
-axs[0].add_feature(cartopy.feature.COASTLINE)
-axs[0].add_feature(cartopy.feature.BORDERS)
-axs[0].add_geometries(data.geometries(), crs=ccrs.Geodetic(), edgecolor='k', facecolor='none')
-axs[0].set_extent([np.min(LONS), np.max(LONS), np.min(LATS), np.max(LATS)])
-axs[0].set_title(inicio[:-3])
-
-cbar_ax = fig.add_axes([0.88, 0.15, 0.02, 0.7])
-fmt = matplotlib.ticker.ScalarFormatter(useMathText=True)
-fmt.set_powerlimits((0, 0))
-cbar=fig.colorbar(cs, cax=cbar_ax,ticks=np.linspace(0,vmax,10),format=fmt)
+	if save:
+		fig.savefig('entero.png',dpi=500)	
+	if show:
+		plt.show()
+	return raw_fig, raw_ax
 

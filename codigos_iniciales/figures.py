@@ -11,7 +11,7 @@ import statsmodels.api as sm
 
 
 # date format: YYYY-MM-DD
-def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, filename = 'series.png', width = 15, height = 4, show = False, save = True):
+def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, filename = '../figures/series.png', width = 15, height = 4, show = False, save = True):
 
 	gas = 'NO2_trop'
 	columna = 'NO2_trop_mean'
@@ -36,7 +36,7 @@ def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, filename =
 	return fig,ax
 
 
-def plot_autocorr(df, lags, alpha = 0.01, width = 30, height=5, filename = 'autocorrelogram.png', show = False, save = True):
+def plot_autocorr(df, lags, alpha = 0.01, width = 30, height=5, filename = '../figures/autocorrelogram.png', show = False, save = True):
 
 	columna='NO2_trop_mean'
 	titulo = 'Autocorrelograma de la serie diaria'
@@ -62,7 +62,7 @@ def plot_autocorr(df, lags, alpha = 0.01, width = 30, height=5, filename = 'auto
 	return fig,ax
 
 #df_m un df agrupado por mes, que contiene a (al menos) ambos años enteros ----------------------quisieramos que funcione para años incompletos?
-def barplot_year_cmp(df_m, year1, year2, width = 10, height=4, filename='compared_series.png', show = False, save = True):
+def barplot_year_cmp(df_m, year1, year2, width = 10, height=4, filename='../figures/compared_series.png', show = False, save = True):
 
 	columna = 'NO2_trop_mean'
 	no2_year1 = df_m[df_m.Year==year1][columna].values
@@ -74,6 +74,8 @@ def barplot_year_cmp(df_m, year1, year2, width = 10, height=4, filename='compare
 	fig, ax = plt.subplots(figsize=figsize)
 	ax = df_bar.plot.bar(rot=0,color=['r','y'],figsize=(width,height))
 	plt.grid(axis='y',alpha=0.5)
+
+	plt.close(plt.figure(1))
 
 	if save:
 		fig.savefig(filename,bbox_inches='tight',dpi=500)
@@ -89,25 +91,5 @@ def interanual_variation(df_m, year1, year2, month_num):
 	
 	var =np.round(100*(no2_year2[month_num]-no2_year1[month_num])/no2_year1[month_num],decimals=2)
 	return var
-"""	
-	color_significativo = 'blue'
-	color_no_sig = 'white'
-	
 
-	rho=[]
-	pval=[]
-	for i in range(lags+1):
-	    lagfila='lag_'+str(i)
-	    columnas=[columna,lagfila]
-	    a=df_autocor[columnas]
-	    b=a.dropna()._get_numeric_data()
-	    rho.append(pearsonr(b[columna], b[lagfila])[0])
-	    pval.append(pearsonr(b[columna], b[lagfila])[1])
-
-	rhoenmascarado=np.copy(rho)
-
-	for i in range(len(pval)):
-	    if pval[i]>alpha:
-	        rhoenmascarado[i]=0
-"""
 	

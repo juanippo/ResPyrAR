@@ -5,21 +5,6 @@ import collection as col
 import datetime
 from dateutil.relativedelta import relativedelta
 
-# parametrizar el estadistico del reductor (espacial) que ahora es mean - linea 62
-# listo (o la idea sería que le pases un string y te genere el reductor?)
-
-# parametrizar el estadistico que tomo de la serie de tiempo, que ahora es mean - linea 75 p.ej
-# listo - acá hice lo del string. está mejor? habría que agregar más estadísticos.
-
-# pasarle a time_series_df una geometria en vez de coordenadas. y otra funcion hace la geometria
-# listo - podemos hacer más geometrias, tipo un circulo, etc.
-#       - de la forma en que está hecho, se puede crear la geo que quiera con ee y usar esa
-
-# usar dayofyear para weekofyear
-# listo,pero - weekofyear queda con otro formato: 28 en vez de 2018W28, está bien?
-
-# quizas parametrizar las constantes de time_series_df
-
 col.initialize()
 
 def create_reduce_region_function(geometry,
@@ -58,15 +43,13 @@ def add_date_info(df):
     df['Year'] = pd.DatetimeIndex(df['Timestamp']).year
     df['Month'] = pd.DatetimeIndex(df['Timestamp']).month
     df['Day'] = pd.DatetimeIndex(df['Timestamp']).day
-    #df['DOY'] = pd.DatetimeIndex(df['Timestamp']).dayofyear
     df['Weekday']=pd.DatetimeIndex(df['Timestamp']).weekday
-    #df['WeekOfYear']=pd.DatetimeIndex(df['Timestamp']).week
     return df
 
 def geometry_rectangle(lon_w,lat_s,lon_e,lat_n):
     return ee.Geometry.Rectangle([lon_w,lat_s,lon_e,lat_n],geodesic= False,proj='EPSG:4326')
 
-def time_series_df(roi,date_ini,date_end, file_name = 'NO2trop_series.csv', reducer = ee.Reducer.mean()):
+def time_series_df(roi, start, end, file_name = 'NO2trop_series.csv', reducer = ee.Reducer.mean(), collection = None):
     #satelite COPERNICUS, modo offline, elijo el no2
     collection_name = 'COPERNICUS/S5P/OFFL/L3_NO2'
     #dentro de eso elijo la densidad de columna troposferica, pero podria elegir otras:
@@ -74,8 +57,10 @@ def time_series_df(roi,date_ini,date_end, file_name = 'NO2trop_series.csv', redu
     var_name  = 'NO2_trop_mean'
 
     reduce_function = create_reduce_region_function(geometry=roi, reducer=reducer, scale=1113.2, crs='EPSG:4326')
-
-    collection_filter=ee.ImageCollection(collection_name).select(variable).filterDate(date_ini,date_end)
+    if collection == None:
+        collection_filter = col.get_collection(start,end)
+    else:
+        collection_filter = collection.filterDate(start,end)
     collection_fc = ee.FeatureCollection(collection_filter.map(reduce_function)).filter(ee.Filter.notNull(collection_filter.first().bandNames()))
     collection_dict=fc_to_dict(collection_fc).getInfo()
 

@@ -17,6 +17,10 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 . [Estaría bueno hacer un archivo de requirements para instalar todas las librerías necesarias en un solo paso]
 . Para autenticar seguir las instrucciones de este link: https://developers.google.com/earth-engine/guides/python_install#expandable-2
 
+
+## TO DO
+. antes de cerrarlo, cambiar los nombres por default de los archivos de salida para que no vayan a otra carpeta (por si no existe)
+
 <!--  fijarse qué de esto va y articularlo
 apt-get install libproj-dev proj-data proj-bin
 apt-get install libgeos-dev

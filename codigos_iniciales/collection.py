@@ -7,7 +7,6 @@ def initialize():
         ee.Authenticate()
         ee.Initialize()
 
-def collection_mean(ini,fin):
-    collection=ee.ImageCollection('COPERNICUS/S5P/OFFL/L3_NO2').select('tropospheric_NO2_column_number_density').filterDate(ini,fin)
-    collection_img_mean=collection.mean().setDefaultProjection(collection.first().projection())
-    return collection_img_mean
+def get_collection(ini,fin, sat = 'COPERNICUS/S5P/OFFL/L3_NO2', column ='tropospheric_NO2_column_number_density'):
+    collection=ee.ImageCollection(sat).select(column).filterDate(ini,fin)
+    return collection
