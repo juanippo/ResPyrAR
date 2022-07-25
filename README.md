@@ -20,6 +20,7 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 
 ## TO DO
 . el plot de space lo paso a figures, no?
+. y el crear geometria a donde?
 . y le agrego opciones save y show
 . convertir a geotff, etc
 . arrancar con la mascara

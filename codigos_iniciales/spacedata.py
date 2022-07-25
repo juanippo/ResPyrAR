@@ -21,7 +21,7 @@ def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean'):
 		collection= col.get_collection(start,end)
 	else:
 		collection = collection.filterDate(start,end)
-	###si quisiéramos otra cosa que no sea la media, hay que cambiar el parámetro .mean() !!
+	
 	if statistic == 'mean':	
 		collection_img=collection.mean().setDefaultProjection(collection.first().projection())
 	elif statistic == 'median':
