@@ -49,7 +49,7 @@ def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean'):
 	return no2, LATS, LONS
 
 
-def plot_map(no2, lats, lons, shapefile, title = 'Concentración media de NO2 troposférico (mol/m2)', width = 8, height = 6, font_size = 15, save = True, show = False):
+def plot_map(no2, lats, lons, shapefile, title = 'Concentración media de NO2 troposférico (mol/m2)', filename = '../figures/entero.png', width = 8, height = 6, font_size = 15, save = True, show = False):
 
 	data = shapereader.Reader(shapefile)
 
@@ -82,7 +82,7 @@ def plot_map(no2, lats, lons, shapefile, title = 'Concentración media de NO2 tr
 	plt.close(plt.figure(3))
 
 	if save:
-		fig.savefig('entero.png',dpi=500)	
+		fig.savefig(filename,dpi=500)	
 	if show:
 		plt.show()
 	return raw_fig, raw_ax
