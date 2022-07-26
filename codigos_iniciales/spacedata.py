@@ -15,7 +15,7 @@ from copy import deepcopy
 
 col.initialize()
 
-def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean'):
+def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean', export = False):
 
 	if collection == None:
 		collection= col.get_collection(start,end)
@@ -28,6 +28,18 @@ def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean'):
 		collection_img=collection.median().setDefaultProjection(collection.first().projection())
 	else:
 		print("Error: statistic not valid")
+
+	if export:
+		task = ee.batch.Export.image.toDrive(collection_img.toFloat(), 
+		                                      description=start,
+		                                      folder='NO2',
+		                                      fileNamePrefix= "NO2_"+start,
+		                                      region = roi,
+		                                      dimensions = (256,256), 
+		                                      fileFormat = 'GeoTIFF',
+		                                      maxPixels = 1e10)
+		task.start()
+
 
 	latlon=ee.Image.pixelLonLat().addBands(collection_img)
 	latlon_new = latlon.reduceRegion(reducer=ee.Reducer.toList(), geometry=roi, maxPixels=1e13,scale=1113.2)

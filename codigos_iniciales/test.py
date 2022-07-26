@@ -102,7 +102,7 @@ figu.plot_series(df_daily, start = inicio, end = fin, show = True)
 inicio='2020-04-01'
 final ='2020-05-01' 
 
-values, lon, lat = sd.space_data_meshgrid(roi, inicio, final, collection = cole)
+values, lon, lat = sd.space_data_meshgrid(roi, inicio, final, collection = cole, export = True)
 raw, _ = sd.plot_map(values, lon, lat, file, show=True)
 
 
