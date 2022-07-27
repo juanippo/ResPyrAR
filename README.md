@@ -15,14 +15,13 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 
 ## Instrucciones de uso
 . [Estaría bueno hacer un archivo de requirements para instalar todas las librerías necesarias en un solo paso]
-. Para autenticar seguir las instrucciones de este link: https://developers.google.com/earth-engine/guides/python_install#expandable-2
+. Para poder autenticar seguir las instrucciones de este link: https://developers.google.com/earth-engine/guides/python_install#expandable-2
 
 
 ## TO DO
 . el plot de space lo paso a figures, no?
 . y el crear geometria a donde?
-. y le agrego opciones save y show
-. convertir a geotff, etc
+. descargar geotiff
 . arrancar con la mascara
 . poner todo en ingles? o todo en español?
 . antes de cerrarlo, cambiar los nombres por default de los archivos de salida para que no vayan a otra carpeta (por si no existe)
