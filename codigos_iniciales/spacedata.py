@@ -35,14 +35,14 @@ def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean', 
 		                                      folder='NO2',
 		                                      fileNamePrefix= "NO2_"+start,
 		                                      region = roi,
-		                                      dimensions = (256,256), 
+		                                      dimensions = (256,256), ##ESTA BIEN? 
 		                                      fileFormat = 'GeoTIFF',
-		                                      maxPixels = 1e10)
+		                                      maxPixels = 1e10) ##ESTA BIEN?
 		task.start()
 
 
 	latlon=ee.Image.pixelLonLat().addBands(collection_img)
-	latlon_new = latlon.reduceRegion(reducer=ee.Reducer.toList(), geometry=roi, maxPixels=1e13,scale=1113.2)
+	latlon_new = latlon.reduceRegion(reducer=ee.Reducer.toList(), geometry=roi, maxPixels=1e13,scale=1113.2,bestEffort = True)
 
 	no2 = np.array((ee.Array(latlon_new.get('tropospheric_NO2_column_number_density')).getInfo()))
 	lats = np.array((ee.Array(latlon_new.get("latitude")).getInfo()))

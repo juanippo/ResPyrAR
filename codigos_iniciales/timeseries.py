@@ -1,9 +1,31 @@
 import ee
 import pandas as pd
+import geopandas as gpd
 import isoweek
+import json
+from dateutil.relativedelta import relativedelta
 import collection as col
 import datetime
-from dateutil.relativedelta import relativedelta
+
+# parametrizar el estadistico del reductor (espacial) que ahora es mean - linea 62
+# listo (o la idea sería que le pases un string y te genere el reductor?)
+
+# parametrizar el estadistico que tomo de la serie de tiempo, que ahora es mean - linea 75 p.ej
+# listo - acá hice lo del string. está mejor? habría que agregar más estadísticos.
+
+# pasarle a time_series_df una geometria en vez de coordenadas. y otra funcion hace la geometria
+# listo - podemos hacer más geometrias, tipo un circulo, etc.
+#       - de la forma en que está hecho, se puede crear la geo que quiera con ee y usar esa
+
+#en timeseres_df pasar un array de reducers y que esten como columnas del df
+
+#armar otro como geometry rectangel que tome uhn archivo y haga esto
+# shape = gpd.read_file("delta-shp/Mapas/Delta/Delta.shp")
+# js = json.loads(shape.to_json())
+# roi = ee.Geometry(ee.FeatureCollection(js).geometry())
+
+#agregasr un warning cuando usa mean, que tenga en cuenta que sirve si los datos siguen una dist normal
+
 
 col.initialize()
 
@@ -48,6 +70,12 @@ def add_date_info(df):
 
 def geometry_rectangle(lon_w,lat_s,lon_e,lat_n):
     return ee.Geometry.Rectangle([lon_w,lat_s,lon_e,lat_n],geodesic= False,proj='EPSG:4326')
+
+def geometry_polygon(shapefile):
+    shape = gpd.read_file(shapefile)
+    js = json.loads(shape.to_json())
+    roi = ee.Geometry(ee.FeatureCollection(js).geometry())
+    return roi
 
 def time_series_df(roi, start, end, file_name = 'NO2trop_series.csv', reducer = ee.Reducer.mean(), collection = None):
     #satelite COPERNICUS, modo offline, elijo el no2

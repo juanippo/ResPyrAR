@@ -94,27 +94,32 @@ raw.savefig("../figures/crudo.png")
 
 cole = col.get_collection(initial_date, final_date)
 
-df = ts.time_series_df(roi,initial_date,final_date,file_name='../actual_outcomes/raw.csv', collection = cole)
-df_daily = ts.ts_dailydf(df, file_name= '../actual_outcomes/daily.csv')
+#df = ts.time_series_df(roi,initial_date,final_date,file_name='../actual_outcomes/raw.csv', collection = cole)
+#df_daily = ts.ts_dailydf(df, file_name= '../actual_outcomes/daily.csv')
 
 inicio = '2018-08-15'
 fin = '2018-09-06'
 
-figu.plot_series(df_daily, start = inicio, end = fin, show = True)
+#figu.plot_series(df_daily, start = inicio, end = fin, show = True)
 
 
 inicio='2019-04-01'
 final ='2019-05-01' 
 
-values, lon, lat = sd.space_data_meshgrid(roi, inicio, final, collection = cole, export = True)
-raw_fig, raw_ax = sd.plot_map(values, lon, lat, shapefile, show=True)
+#values, lon, lat = sd.space_data_meshgrid(roi, inicio, final, collection = cole, export = True)
+#raw_fig, raw_ax = sd.plot_map(values, lon, lat, shapefile, show=True)
+
+
+shape_sjuan = "../../chagas/poligono_sJuan/poligono_sJuan.shp"
+roi_sjuan = ts.geometry_polygon(shape_sjuan)
+
+values, lon, lat = sd.space_data_meshgrid(roi_sjuan, inicio, final, collection = cole, export = True)
+sd.plot_map(values, lon, lat, shapefile, show=True)
+
 
 mask=mask.mask_percentil(values,0.7)  #array de 0 y 1 
 mask_list=mask.mask_curve(lons,lats,values,0.7)  ## curva calculada con la matriz original
 maskones_list=mask.mask_onescurve(lons,lats,values,0.7) ##curva calculada con la matriz de ceros y unos ,esto es otra metodología nomás
 suma=mask.pixel_in_contour(lons,lats,max_curve(CS.allsegs[0]))
 print('puntos dentro del contorno: ',suma)
-
-
-
 
