@@ -19,10 +19,14 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 
 
 ## TO DO
+. hay que cambiar la escala (linea 45 spacedata) porque excede el limite con el roi sanjuan. cómo lo cambiamos? como lo hacemos genérico?
+. qué onda que hay una linea en raw donde min y mean son iguales? no puede haber una sola medicion en todo ese espacio 
+. charlar: está buena la solucion a lo de los reductores? pasan un arreglo de reductores y uno de nombres, tienen que medir lo mismo...
+. quisieramos que month compare barplot funcione para años incompletos? 
 . el plot de space lo paso a figures, no?
 . y el crear geometria a donde?
 . descargar geotiff
-. arrancar con la mascara
+. mascara
 . poner todo en ingles? o todo en español?
 . antes de cerrarlo, cambiar los nombres por default de los archivos de salida para que no vayan a otra carpeta (por si no existe)
 

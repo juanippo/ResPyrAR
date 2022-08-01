@@ -77,24 +77,34 @@ def geometry_polygon(shapefile):
     roi = ee.Geometry(ee.FeatureCollection(js).geometry())
     return roi
 
-def time_series_df(roi, start, end, file_name = 'NO2trop_series.csv', reducer = ee.Reducer.mean(), collection = None):
+def time_series_df(roi, start, end, file_name = 'NO2trop_series.csv', reducers = [ee.Reducer.mean()], red_names = ['NO2_trop_mean'], collection = None):
+    
+    assert(len(reducers) == len(red_names))
     #satelite COPERNICUS, modo offline, elijo el no2
     collection_name = 'COPERNICUS/S5P/OFFL/L3_NO2'
-    #dentro de eso elijo la densidad de columna troposferica, pero podria elegir otras:
+    #dentro de eso elijo la densidad de columna troposferica:
     variable  = 'tropospheric_NO2_column_number_density'
     var_name  = 'NO2_trop_mean'
 
-    reduce_function = create_reduce_region_function(geometry=roi, reducer=reducer, scale=1113.2, crs='EPSG:4326')
+    df = pd.DataFrame({"millis": []})
+
     if collection == None:
         collection_filter = col.get_collection(start,end)
     else:
         collection_filter = collection.filterDate(start,end)
-    collection_fc = ee.FeatureCollection(collection_filter.map(reduce_function)).filter(ee.Filter.notNull(collection_filter.first().bandNames()))
-    collection_dict=fc_to_dict(collection_fc).getInfo()
 
-    df = pd.DataFrame(collection_dict)
+    i=0
+    for reducer in reducers:
+        reduce_function = create_reduce_region_function(geometry=roi, reducer=reducer, scale=1113.2, crs='EPSG:4326')
+        collection_fc = ee.FeatureCollection(collection_filter.map(reduce_function)).filter(ee.Filter.notNull(collection_filter.first().bandNames()))
+        collection_dict=fc_to_dict(collection_fc).getInfo()
+
+        new_df = pd.DataFrame(collection_dict)
+        new_df = new_df.rename(columns={variable: red_names[i]}).drop(columns=['system:index'])
+        df = pd.merge(df, new_df, on='millis', how='outer')
+        i += 1 
     df = add_date_info(df)
-    df = df.rename(columns={variable: var_name}).drop(columns=['millis', 'system:index'])
+    df = df.drop(columns=['millis'])
     df.to_csv(file_name,index=False)
     return df
 
