@@ -60,10 +60,15 @@ def plot_autocorr(df, lags, alpha = 0.01, width = 30, height=5, filename = '../f
 #df_m un df agrupado por mes, que contiene a (al menos) ambos años enteros
 def barplot_year_cmp(df_m, year1, year2, width = 10, height=4, column = 'NO2_trop_mean', filename='../figures/compared_series.png', show = False, save = True):
 
-	no2_year1 = df_m[df_m.Year==year1][column].values
-	no2_year2 = df_m[df_m.Year==year2][column].values
-	months = ['J','F','M','A','M','J','J','A','S','O','N','D']
-	df_bar = pd.DataFrame({str(year1): no2_year1,str(year2): no2_year2}, index=months)
+	col_year1 = column+str(year1)
+	col_year2 = column+str(year2)
+
+	no2_year1 = df_m[df_m.Year==year1].rename(columns = {column : col_year1})
+	no2_year2 = df_m[df_m.Year==year2].rename(columns = {column : col_year2})
+
+	df_bar = pd.merge(no2_year1, no2_year2, on = 'Month', how = 'outer')[['Month',col_year1,col_year2]]
+	df_bar = df_bar.set_index('Month')  
+	print(df_bar)
 
 	figsize=(width,height)
 	fig, ax = plt.subplots(figsize=figsize)

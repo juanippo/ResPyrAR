@@ -80,7 +80,7 @@ def geometry_polygon(shapefile):
 def time_series_df(roi, start, end, file_name = 'NO2trop_series.csv', reducers = [ee.Reducer.mean()], red_names = ['NO2_trop_mean'], collection = None):
     
     assert(len(reducers) == len(red_names))
-    #satelite COPERNICUS, modo offline, elijo el no2
+    #satelite COPERNICUS, modo offline, elijo el no2 // para tiempor real elegir NRTI en vez de OFFL
     collection_name = 'COPERNICUS/S5P/OFFL/L3_NO2'
     #dentro de eso elijo la densidad de columna troposferica:
     variable  = 'tropospheric_NO2_column_number_density'
@@ -150,7 +150,6 @@ def ts_weeklydf(df, file_name='weeklymean_df.csv', statistic = 'mean'):
     #df_daily['WeekOfYear']=[isoweek.Week.withdate(d) for d in day]
     #df_daily['WeekOfYear']=pd.DatetimeIndex(df_daily['Fecha_datetime']).week
     df_daily['WeekOfYear']=pd.Int64Index(pd.DatetimeIndex(df_daily['Fecha_datetime']).isocalendar().week)
-    print(df_daily)
     if statistic == 'mean' :
         df_weekly=df_daily.groupby(['WeekOfYear','Fecha_datetime']).mean().reset_index()
     if statistic == 'median':
@@ -159,7 +158,6 @@ def ts_weeklydf(df, file_name='weeklymean_df.csv', statistic = 'mean'):
     df_weekly['N_days']=df_weekly_c[df.columns[0]].astype(int)
     #df_weekly['Fecha_datetime']=[isoweek.Week.monday(s) for s in df_weekly.WeekOfYear.values]
     #df_weekly['Fecha_datetime']=df_weekly['WeekOfYear'].apply(lambda x : x+1)
-    print(df_weekly)
     df_weekly.drop(columns=['Year','Month','Day','Weekday','N_obs'],inplace=True)
     df_weekly.to_csv(file_name,index=False)
     return df_weekly
