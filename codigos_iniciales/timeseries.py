@@ -73,6 +73,7 @@ def geometry_rectangle(lon_w,lat_s,lon_e,lat_n):
 
 def geometry_polygon(shapefile):
     shape = gpd.read_file(shapefile)
+    shape = shape.convex_hull
     js = json.loads(shape.to_json())
     roi = ee.Geometry(ee.FeatureCollection(js).geometry())
     return roi

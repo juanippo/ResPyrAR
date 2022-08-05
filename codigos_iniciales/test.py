@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import pandas as pd 
 import mask
 import ee
-'''
+
 def compare_csv(filename1, filename2):
     t1 = open(filename1, 'r')
     t2 = open(filename2, 'r')
@@ -19,11 +19,12 @@ def compare_csv(filename1, filename2):
     return (fileone == filetwo)
 
 
-#initial_date = '2018-07-01'
-#final_date = '2018-10-01'
+initial_date = '2019-03-01'
+final_date = '2019-07-01'
+'''
 
-initial_date='2019-01-01'
-final_date   ='2021-01-01'
+#initial_date='2019-01-01'
+#final_date   ='2021-01-01'
 
 
 col.initialize()
@@ -50,7 +51,7 @@ df_monthly = ts.ts_monthlydf(df, file_name= '../actual_outcomes/monthly.csv')
 df_w = ts.ts_weeklydf(df, file_name= '../actual_outcomes/weekly.csv')
 
 print("time_series_df, daily, monthly y weekly corrieron")
-"""
+
 #tener los expected_outcomes de antes
 assert(compare_csv('../actual_outcomes/raw.csv','../expected_outcomes/NO2trop_series.csv'))
 assert(compare_csv('../actual_outcomes/daily.csv','../expected_outcomes/dailymean_df.csv'))
@@ -85,7 +86,7 @@ print("La variación interanual para abril 2020-2019 es: ",var)
 
 
 ##Este código es para tener una visualización espacial del no2. Vamos a tomar medias mensuales
-'''
+
 inicio='2020-04-01'
 final ='2020-04-03' 
 
@@ -102,6 +103,7 @@ cole = col.get_collection(initial_date, final_date)
 
 #df = ts.time_series_df(roi,initial_date,final_date,file_name='../actual_outcomes/raw.csv', collection = cole)
 #df_daily = ts.ts_dailydf(df, file_name= '../actual_outcomes/daily.csv')
+'''
 
 inicio = '2018-08-15'
 fin = '2018-09-06'
@@ -114,15 +116,24 @@ final ='2019-05-01'
 
 values, lon, lat = sd.space_data_meshgrid(roi, inicio, final, collection = cole, export = True)
 raw_fig, raw_ax = sd.plot_map(values, lon, lat, shapefile, show=True)
+'''
 
-
+inicio='2019-04-01'
+final ='2019-05-01' 
 shape_sjuan = "../../chagas/poligono_sJuan/poligono_sJuan.shp"
+
+lat_n=-31.43207816743497
+lat_s=-31.641590578584516
+lon_w=-68.67117914175913
+lon_e=-68.40888055777475
+
 roi_sjuan = ts.geometry_polygon(shape_sjuan)
 #probar con rectangulo a ver si es u problema de shape
 
-values, lon, lat = sd.space_data_meshgrid(roi, inicio, final, collection = cole, export = True)
-sd.plot_map(values, lon, lat, shapefile, show=True)
+values, lon, lat = sd.space_data_meshgrid(roi_sjuan, inicio, final, collection = cole, export = True)
+sd.plot_map(values, lon, lat, shape_sjuan, show=True)
 
+'''
 
 mask=mask.mask_percentil(values,0.7)  #array de 0 y 1 
 mask_list=mask.mask_curve(lons,lats,values,0.7)  ## curva calculada con la matriz original

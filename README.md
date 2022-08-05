@@ -20,7 +20,10 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 
 ## TO DO
 . hay que cambiar la escala (linea 45 spacedata) porque excede el limite con el roi sanjuan. cómo lo cambiamos? como lo hacemos genérico?
-. qué onda que hay una linea en raw donde min y mean son iguales? no puede haber una sola medicion en todo ese espacio 
+. qué onda que hay una linea en raw donde min y mean son iguales? no puede haber una sola medicion en todo ese espacio
+. hacer algo que descargue los datos del mapa aun si hay algunos pixeles que tienen solo nans (geemap lo hizo)
+. cuando uso una coleccion que me pasan, agregar un chequeo que vea que el período que quiero esté adentro (cómo?)
+. agregar un chequeo de fecha bien pasada
 . está buena la solucion a lo de los reductores? pasan un arreglo de reductores y uno de nombres, tienen que medir lo mismo...
 . quisieramos que month compare barplot funcione para años incompletos... no? (hay algo tipo fill with NaNs?) 
 . el plot de space lo paso a figures, no?
