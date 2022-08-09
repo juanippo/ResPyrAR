@@ -19,16 +19,14 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 
 
 ## TO DO
-. hay que cambiar la escala (linea 45 spacedata) porque excede el limite con el roi sanjuan. cómo lo cambiamos? como lo hacemos genérico?
-. qué onda que hay una linea en raw donde min y mean son iguales? no puede haber una sola medicion en todo ese espacio
+. los polygon rompen la descarga de datos. obtener el rectangulo que lo recubre con .bounds, y después hacer una máscara.
 . hacer algo que descargue los datos del mapa aun si hay algunos pixeles que tienen solo nans (geemap lo hizo)
 . cuando uso una coleccion que me pasan, agregar un chequeo que vea que el período que quiero esté adentro (cómo?)
 . agregar un chequeo de fecha bien pasada
 . está buena la solucion a lo de los reductores? pasan un arreglo de reductores y uno de nombres, tienen que medir lo mismo...
-. quisieramos que month compare barplot funcione para años incompletos... no? (hay algo tipo fill with NaNs?) 
 . el plot de space lo paso a figures, no?
 . y el crear geometria a donde?
-. descargar geotiff
+. descargar geotiff directo? (por ahora exporta)
 . mascara
 . poner todo en ingles? o todo en español?
 . antes de cerrarlo, cambiar los nombres por default de los archivos de salida para que no vayan a otra carpeta (por si no existe)(o que la cree)
