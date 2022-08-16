@@ -1,7 +1,9 @@
 import ee
 import pandas as pd
 import geopandas as gpd
+import shapefile
 import isoweek
+from geojson import Polygon
 import json
 from dateutil.relativedelta import relativedelta
 import collection as col
@@ -71,11 +73,16 @@ def add_date_info(df):
 def geometry_rectangle(lon_w,lat_s,lon_e,lat_n):
     return ee.Geometry.Rectangle([lon_w,lat_s,lon_e,lat_n],geodesic= False,proj='EPSG:4326')
 
-def geometry_polygon(shapefile):
-    shape = gpd.read_file(shapefile)
-    shape = shape.convex_hull
-    js = json.loads(shape.to_json())
-    roi = ee.Geometry(ee.FeatureCollection(js).geometry())
+def geometry_polygon(filename):
+    #shape = gpd.read_file(shapefile)
+    #js = json.loads(shape.to_json())
+    #roi = ee.Geometry(ee.FeatureCollection(js).geometry())
+    #roi = ee.Geometry.Polygon(shape.to_json()) #creo que no anda porque Geometry.Polygon necesita un geojson de tipo Polygon, y este ni idea qué es
+    geojson_data = shapefile.Reader(filename).__geo_interface__
+    for f in geojson_data['features']:
+        js = Polygon(f['geometry']['coordinates'])
+    print(js)
+    roi = ee.Geometry.Polygon(js) #me dice que no son validas las coordenadas :(
     return roi
 
 def time_series_df(roi, start, end, file_name = 'NO2trop_series.csv', reducers = [ee.Reducer.mean()], red_names = ['NO2_trop_mean'], collection = None):

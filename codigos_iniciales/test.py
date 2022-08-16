@@ -20,7 +20,7 @@ def compare_csv(filename1, filename2):
 
 
 initial_date = '2019-03-01'
-final_date = '2019-07-01'
+final_date = '2019-06-01'
 '''
 
 #initial_date='2019-01-01'
@@ -128,7 +128,7 @@ lon_w=-68.67117914175913
 lon_e=-68.40888055777475
 
 roi_sjuan = ts.geometry_polygon(shape_sjuan)
-#probar con rectangulo a ver si es u problema de shape
+#roi_sjuan_bounds = roi_sjuan.bounds()
 
 values, lon, lat = sd.space_data_meshgrid(roi_sjuan, inicio, final, collection = cole, export = True)
 sd.plot_map(values, lon, lat, shape_sjuan, show=True)
