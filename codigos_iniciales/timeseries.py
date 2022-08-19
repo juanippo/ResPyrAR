@@ -74,15 +74,17 @@ def geometry_rectangle(lon_w,lat_s,lon_e,lat_n):
     return ee.Geometry.Rectangle([lon_w,lat_s,lon_e,lat_n],geodesic= False,proj='EPSG:4326')
 
 def geometry_polygon(filename):
-    #shape = gpd.read_file(shapefile)
-    #js = json.loads(shape.to_json())
-    #roi = ee.Geometry(ee.FeatureCollection(js).geometry())
+    shape = gpd.read_file(filename)
+    js = json.loads(shape.to_json())
+    roi = ee.Geometry(ee.FeatureCollection(js).geometry())
     #roi = ee.Geometry.Polygon(shape.to_json()) #creo que no anda porque Geometry.Polygon necesita un geojson de tipo Polygon, y este ni idea qué es
-    geojson_data = shapefile.Reader(filename).__geo_interface__
-    for f in geojson_data['features']:
-        js = Polygon(f['geometry']['coordinates'])
-    print(js)
-    roi = ee.Geometry.Polygon(js) #me dice que no son validas las coordenadas :(
+    #geojson_data = shapefile.Reader(filename).__geo_interface__
+    #print(geojson_data)
+    #print("ahora js")
+    #for f in geojson_data['features']:
+    #    js = Polygon(f['geometry']['coordinates'])
+    #print(js)
+    #roi = ee.Geometry.Polygon(js) #me dice que no son validas las coordenadas :(
     return roi
 
 def time_series_df(roi, start, end, file_name = 'NO2trop_series.csv', reducers = [ee.Reducer.mean()], red_names = ['NO2_trop_mean'], collection = None):
@@ -100,17 +102,23 @@ def time_series_df(roi, start, end, file_name = 'NO2trop_series.csv', reducers =
         collection_filter = col.get_collection(start,end)
     else:
         collection_filter = collection.filterDate(start,end)
+    print("obtuve collection")
 
     i=0
     for reducer in reducers:
         reduce_function = create_reduce_region_function(geometry=roi, reducer=reducer, scale=1113.2, crs='EPSG:4326')
+        print("creo reduce_function")
         collection_fc = ee.FeatureCollection(collection_filter.map(reduce_function)).filter(ee.Filter.notNull(collection_filter.first().bandNames()))
+        print("reduzco")
         collection_dict=fc_to_dict(collection_fc).getInfo()
-
+        print("paso a dict")
+        
         new_df = pd.DataFrame(collection_dict)
         new_df = new_df.rename(columns={variable: red_names[i]}).drop(columns=['system:index'])
         df = pd.merge(df, new_df, on='millis', how='outer')
         i += 1 
+    print("reduje")
+
     df = add_date_info(df)
     df = df.drop(columns=['millis'])
     df.to_csv(file_name,index=False)

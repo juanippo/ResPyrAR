@@ -35,7 +35,7 @@ def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean', 
 		                                      folder='NO2',
 		                                      fileNamePrefix= "NO2_"+start,
 		                                      region = roi,
-		                                      dimensions = (256,256), ##ESTA BIEN? 
+		                                      #dimensions = (256,256), ##ESTA BIEN? 
 		                                      fileFormat = 'GeoTIFF',
 		                                      maxPixels = 1e10) ##ESTA BIEN?
 		task.start()
