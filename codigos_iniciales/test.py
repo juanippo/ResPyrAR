@@ -120,7 +120,9 @@ raw_fig, raw_ax = sd.plot_map(values, lon, lat, shapefile, show=True)
 
 inicio='2019-03-01'
 final ='2019-03-09' 
-shape_sjuan = "../../chagas/poligono_sJuan/poligono_sJuan.shp"
+#shape_sjuan = "../../chagas/poligono_sJuan/poligono_sJuan.shp"
+shape_sjuan = '../data/sjuan/sanjuan.shp'
+shape_cordoba = "../data/cordoba.shp"
 
 lat_n=-31.43207816743497
 lat_s=-31.641590578584516
@@ -133,11 +135,17 @@ square_sjuan = ts.geometry_rectangle(lon_w,lat_s,lon_e,lat_n)
 print("inicio")
 
 roi_sjuan = ts.geometry_polygon(shape_sjuan)
-#print(roi_sjuan)
 roi_sjuan_bounds = roi_sjuan.bounds()
+#print(roi_sjuan)
+#area = roi_sjuan.area().divide(1000 * 1000).getInfo()
+#print('sjuan area: ', area)
+#perimetro = roi_sjuan.perimeter().getInfo()
+#print('perim: ', perimetro)
+#area_bounds = roi_sjuan_bounds.area(maxError = 10).divide(1000 * 1000).getInfo()
+#print('bounds area: ', area_bounds)
 print("creo poligono")
 #print(roi_sjuan_bounds)
-
+"""
 df = ts.time_series_df(roi_sjuan_bounds,initial_date,final_date,file_name='../actual_outcomes/raw_sjuan.csv')
 print("creo df")
 
@@ -155,22 +163,10 @@ print("creo daily")
 
 figu.plot_series(df_daily, filename='../figures/square_series.png')
 print("ploteo")
+"""
 
-#time series tambien falla:
-# si pongo un mes se cuelga pasando el fc a dict
-# si pongo una semana, hace una imagen, pero es muy distinta a lo que da un cuadradito alrededor de sjuan
-#esto refuerza la hipotesis de que el poligono esta tomando todo el mundo
-#y si está tomando lo de afuera en vez de lo de adentro?
-#y si falta clipear en algun lugar? (no debería, si me pide una geometria)
-
-#cuando pongo bounds 
-#  -(y pruebo timeseries) me dice que es una unbounded image (por la linea 113 (collection_dict=fc_to_dict(collection_fc).getInfo()) ) 
-#  -(y pruebo spacedata) me dice que es una unbounded image (por la linea 47 (no2 = np.array((ee.Array(latlon_new.get('tropospheric_NO2_column_number_density')).getInfo()))) : 
-#    "Image.reduceRegion: Provide 'geometry' parameter when aggregating over an unbounded image" )
-#en ambos el mismo mensaje, en ambos cuando hago getInfo() (quizás porque ahí se computan las funciones de reduccion?)
-
-#values, lon, lat = sd.space_data_meshgrid(roi_sjuan, inicio, final, collection = cole, export = True)
-#sd.plot_map(values, lon, lat, shape_sjuan, show=True)
+values, lon, lat = sd.space_data_meshgrid(roi_sjuan, inicio, final, collection = cole, export = True)
+sd.plot_map(values, lon, lat, shape_sjuan, show=True)
 
 '''
 

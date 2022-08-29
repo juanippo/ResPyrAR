@@ -19,7 +19,7 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 
 
 ## TO DO
-. los polygon rompen la descarga de datos. obtener el rectangulo que lo recubre con .bounds, y después hacer una máscara.
+. bounds de polygon redondean un poco mal (o está desfasado respecto al otro shape)
 . hacer algo que descargue los datos del mapa aun si hay algunos pixeles que tienen solo nans (geemap lo hizo)
 . cuando uso una coleccion que me pasan, agregar un chequeo que vea que el período que quiero esté adentro (cómo?)
 . agregar un chequeo de fecha bien pasada

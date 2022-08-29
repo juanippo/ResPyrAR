@@ -43,6 +43,9 @@ def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean', 
 
 	latlon=ee.Image.pixelLonLat().addBands(collection_img)
 	latlon_new = latlon.reduceRegion(reducer=ee.Reducer.toList(), geometry=roi, maxPixels=1e13,scale=1113.2,bestEffort = True)
+	#idea: ahí usar roi.bounds()
+	#despues aplico mask para lo que está en bounds pero no en roi valga null
+	# (hace eso mask? o lo deja de considerar?)
 
 	no2 = np.array((ee.Array(latlon_new.get('tropospheric_NO2_column_number_density')).getInfo()))
 	lats = np.array((ee.Array(latlon_new.get("latitude")).getInfo()))
@@ -75,16 +78,18 @@ def plot_map(no2, lats, lons, shapefile, title = 'Concentración media de NO2 tr
 	ax.add_feature(cartopy.feature.COASTLINE)
 	ax.add_feature(cartopy.feature.BORDERS)
 	ax.add_geometries(data.geometries(), crs=ccrs.Geodetic(), edgecolor='k', facecolor='none')
-	ax.set_extent([np.min(lons), np.max(lons), np.min(lats), np.max(lats)])
+	delta = 0.01 #sacar esto cuando lo arregle
+	ax.set_extent([np.min(lons)-delta, np.max(lons)+delta, np.min(lats)-delta, np.max(lats)+delta])
 	cs=ax.pcolormesh(lons,lats,no2,vmin=0,vmax=vmax, cmap=cmap)
 	
 	raw_fig = deepcopy(fig) 
 	raw_ax = deepcopy(ax)
 	
-	fig.subplots_adjust(top=0.89,right=0.87,wspace=0.05, hspace=0.07)
+	#fig.subplots_adjust(top=0.89,right=0.87,wspace=0.05, hspace=0.07)
 
 	fig.suptitle(title,fontsize=font_size)
 
+	#color bar
 	cbar_ax = fig.add_axes([0.88, 0.15, 0.02, 0.7])
 	fmt = matplotlib.ticker.ScalarFormatter(useMathText=True)
 	fmt.set_powerlimits((0, 0))

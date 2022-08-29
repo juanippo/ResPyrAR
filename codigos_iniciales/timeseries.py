@@ -76,15 +76,8 @@ def geometry_rectangle(lon_w,lat_s,lon_e,lat_n):
 def geometry_polygon(filename):
     shape = gpd.read_file(filename)
     js = json.loads(shape.to_json())
-    roi = ee.Geometry(ee.FeatureCollection(js).geometry())
-    #roi = ee.Geometry.Polygon(shape.to_json()) #creo que no anda porque Geometry.Polygon necesita un geojson de tipo Polygon, y este ni idea qué es
-    #geojson_data = shapefile.Reader(filename).__geo_interface__
-    #print(geojson_data)
-    #print("ahora js")
-    #for f in geojson_data['features']:
-    #    js = Polygon(f['geometry']['coordinates'])
-    #print(js)
-    #roi = ee.Geometry.Polygon(js) #me dice que no son validas las coordenadas :(
+    roi_fc = ee.FeatureCollection(js)
+    roi = roi_fc.geometry()
     return roi
 
 def time_series_df(roi, start, end, file_name = 'NO2trop_series.csv', reducers = [ee.Reducer.mean()], red_names = ['NO2_trop_mean'], collection = None):
