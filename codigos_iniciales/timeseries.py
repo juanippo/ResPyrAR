@@ -1,35 +1,27 @@
 import ee
 import pandas as pd
+import numpy as np
 import geopandas as gpd
-import shapefile
-import isoweek
-from geojson import Polygon
+import shapefile #?
+import isoweek 
 import json
-from dateutil.relativedelta import relativedelta
-import collection as col
+from dateutil.relativedelta import relativedelta #?
+import utils
 import datetime
+import matplotlib
+import matplotlib.cm as mpl
+import matplotlib.pyplot as plt
+import cartopy
+import cartopy.crs as ccrs             
+import cartopy.feature as cfeature           
+import cartopy.io.shapereader as shapereader
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+from cartopy.feature.nightshade import Nightshade
+from copy import deepcopy
+from scipy.stats import pearsonr
+import statsmodels.api as sm
 
-# parametrizar el estadistico del reductor (espacial) que ahora es mean - linea 62
-# listo (o la idea sería que le pases un string y te genere el reductor?)
-
-# parametrizar el estadistico que tomo de la serie de tiempo, que ahora es mean - linea 75 p.ej
-# listo - acá hice lo del string. está mejor? habría que agregar más estadísticos.
-
-# pasarle a time_series_df una geometria en vez de coordenadas. y otra funcion hace la geometria
-# listo - podemos hacer más geometrias, tipo un circulo, etc.
-#       - de la forma en que está hecho, se puede crear la geo que quiera con ee y usar esa
-
-#en timeseres_df pasar un array de reducers y que esten como columnas del df
-
-#armar otro como geometry rectangel que tome uhn archivo y haga esto
-# shape = gpd.read_file("delta-shp/Mapas/Delta/Delta.shp")
-# js = json.loads(shape.to_json())
-# roi = ee.Geometry(ee.FeatureCollection(js).geometry())
-
-#agregasr un warning cuando usa mean, que tenga en cuenta que sirve si los datos siguen una dist normal
-
-
-col.initialize()
+utils.initialize()
 
 def create_reduce_region_function(geometry,
                                   reducer=ee.Reducer.mean(),
@@ -73,14 +65,16 @@ def add_date_info(df):
 def geometry_rectangle(lon_w,lat_s,lon_e,lat_n):
     return ee.Geometry.Rectangle([lon_w,lat_s,lon_e,lat_n],geodesic= False,proj='EPSG:4326')
 
+""" coming soon
 def geometry_polygon(filename):
     shape = gpd.read_file(filename)
     js = json.loads(shape.to_json())
     roi_fc = ee.FeatureCollection(js)
     roi = roi_fc.geometry()
     return roi
+"""
 
-def time_series_df(roi, start, end, file_name = 'NO2trop_series.csv', reducers = [ee.Reducer.mean()], red_names = ['NO2_trop_mean'], collection = None):
+def time_series_df(roi, start, end, filename = 'NO2trop_series.csv', reducers = [ee.Reducer.mean()], red_names = ['NO2_trop_mean'], collection = None):
     
     assert(len(reducers) == len(red_names))
     #satelite COPERNICUS, modo offline, elijo el no2 // para tiempor real elegir NRTI en vez de OFFL
@@ -92,32 +86,27 @@ def time_series_df(roi, start, end, file_name = 'NO2trop_series.csv', reducers =
     df = pd.DataFrame({"millis": []})
 
     if collection == None:
-        collection_filter = col.get_collection(start,end)
+        collection_filter = utils.get_collection(start,end)
     else:
         collection_filter = collection.filterDate(start,end)
-    print("obtuve collection")
-
+    
     i=0
     for reducer in reducers:
         reduce_function = create_reduce_region_function(geometry=roi, reducer=reducer, scale=1113.2, crs='EPSG:4326')
-        print("creo reduce_function")
         collection_fc = ee.FeatureCollection(collection_filter.map(reduce_function)).filter(ee.Filter.notNull(collection_filter.first().bandNames()))
-        print("reduzco")
         collection_dict=fc_to_dict(collection_fc).getInfo()
-        print("paso a dict")
         
         new_df = pd.DataFrame(collection_dict)
         new_df = new_df.rename(columns={variable: red_names[i]}).drop(columns=['system:index'])
         df = pd.merge(df, new_df, on='millis', how='outer')
         i += 1 
-    print("reduje")
-
+    
     df = add_date_info(df)
     df = df.drop(columns=['millis'])
-    df.to_csv(file_name,index=False)
+    df.to_csv(filename,index=False)
     return df
 
-def ts_dailydf(df, file_name='dailymean_df.csv', statistic = 'mean'):
+def ts_dailydf(df, filename='dailymean_df.csv', statistic = 'mean'):
     assert(statistic == 'mean' or statistic == 'median')
     if statistic == 'mean' :
         df_daily=df.groupby(['Year','Month','Day']).mean().reset_index()
@@ -134,10 +123,10 @@ def ts_dailydf(df, file_name='dailymean_df.csv', statistic = 'mean'):
     df_daily['Day']=df_daily['Fecha_datetime'].dt.day
     df_daily['Weekday']=df_daily['Fecha_datetime'].dt.weekday
     df_daily['N_obs']=df_daily['N_obs'].fillna(0).astype(int)
-    df_daily.to_csv(file_name,index=False)
+    df_daily.to_csv(filename,index=False)
     return df_daily
 
-def ts_monthlydf(df, file_name='monthlymean_df.csv', statistic = 'mean'):
+def ts_monthlydf(df, filename='monthlymean_df.csv', statistic = 'mean'):
     assert(statistic == 'mean' or statistic == 'median')
     df_daily=ts_dailydf(df, statistic = statistic)
     if statistic == 'mean' :
@@ -148,10 +137,10 @@ def ts_monthlydf(df, file_name='monthlymean_df.csv', statistic = 'mean'):
     df_monthly['Fecha_datetime']=pd.to_datetime(df_monthly['Year'].astype(str)+'-'+df_monthly['Month'].astype(str),format='%Y-%m')
     df_monthly.drop(columns=['Day','Weekday','N_obs'],inplace=True)
     df_monthly['N_days']=df_monthly_c[df.columns[0]]
-    df_monthly.to_csv(file_name,index=False)
+    df_monthly.to_csv(filename,index=False)
     return df_monthly
 
-def ts_weeklydf(df, file_name='weeklymean_df.csv', statistic = 'mean'):
+def ts_weeklydf(df, filename='weeklymean_df.csv', statistic = 'mean'):
     assert(statistic == 'mean' or statistic == 'median')
     df_daily=ts_dailydf(df, statistic = statistic)
     #retrocedo tantos días según el día de la semana que sea
@@ -168,10 +157,186 @@ def ts_weeklydf(df, file_name='weeklymean_df.csv', statistic = 'mean'):
     #df_weekly['Fecha_datetime']=[isoweek.Week.monday(s) for s in df_weekly.WeekOfYear.values]
     #df_weekly['Fecha_datetime']=df_weekly['WeekOfYear'].apply(lambda x : x+1)
     df_weekly.drop(columns=['Year','Month','Day','Weekday','N_obs'],inplace=True)
-    df_weekly.to_csv(file_name,index=False)
+    df_weekly.to_csv(filename,index=False)
     return df_weekly
 
 
+def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean', export = False):
 
-#def ts_graph(df, timeinterval=daily):
-#    if timeinterval ==
+    if collection == None:
+        collection= utils.get_collection(start,end)
+    else:
+        collection = collection.filterDate(start,end)
+    
+    if statistic == 'mean': 
+        collection_img=collection.mean().setDefaultProjection(collection.first().projection())
+    elif statistic == 'median':
+        collection_img=collection.median().setDefaultProjection(collection.first().projection())
+    else:
+        print("Error: statistic not valid")
+
+    if export:
+        task = ee.batch.Export.image.toDrive(collection_img.toFloat(), 
+                                              description=start,
+                                              folder='NO2',
+                                              fileNamePrefix= "NO2_"+start,
+                                              region = roi,
+                                              #dimensions = (256,256), ##ESTA BIEN? 
+                                              fileFormat = 'GeoTIFF',
+                                              maxPixels = 1e10) ##ESTA BIEN?
+        task.start()
+
+
+    latlon=ee.Image.pixelLonLat().addBands(collection_img)
+    latlon_new = latlon.reduceRegion(reducer=ee.Reducer.toList(), geometry=roi, maxPixels=1e13,scale=1113.2,bestEffort = True)
+    #idea: ahí usar roi.bounds()
+    #despues aplico mask para lo que está en bounds pero no en roi valga null
+    # (hace eso mask? o lo deja de considerar?)
+
+    no2 = np.array((ee.Array(latlon_new.get('tropospheric_NO2_column_number_density')).getInfo()))
+    lats = np.array((ee.Array(latlon_new.get("latitude")).getInfo()))
+    lons = np.array((ee.Array(latlon_new.get("longitude")).getInfo()))  
+
+    ##reshape para que quede tres matrices tipo meshgrid
+    uniqueLats = np.unique(lats)
+    uniqueLons = np.unique(lons)
+    ncols = len(uniqueLons)    
+    nrows = len(uniqueLats)
+
+    no2=no2.reshape(nrows,ncols)
+    LATS=lats.reshape(nrows,ncols)
+    LONS=lons.reshape(nrows,ncols)
+
+    return no2, LATS, LONS
+
+
+def interanual_variation(df_m, year1, year2, month_num, column = 'NO2_trop_mean'):
+
+    month_idx = month_num-1 
+    no2_year1 = df_m[df_m.Year==year1][column].values
+    no2_year2 = df_m[df_m.Year==year2][column].values
+    
+    var =np.round(100*(no2_year2[month_idx]-no2_year1[month_idx])/no2_year1[month_idx],decimals=2)
+    return var
+
+# Figures
+
+def plot_map(no2, lats, lons, shapefile, title = 'Concentración media de NO2 troposférico (mol/m2)', filename = 'entero.png', width = 8, height = 6, font_size = 15, save = True, show = False):
+
+    data = shapereader.Reader(shapefile)
+
+    vmax=np.max(no2)
+
+    ##colores
+    cmap=mpl.get_cmap('seismic',100)  
+
+    fig, ax = plt.subplots(subplot_kw={'projection': ccrs.PlateCarree()},figsize=(width,height))
+
+    ax.add_feature(cartopy.feature.COASTLINE)
+    ax.add_feature(cartopy.feature.BORDERS)
+    ax.add_geometries(data.geometries(), crs=ccrs.Geodetic(), edgecolor='k', facecolor='none')
+    delta = 0
+    ax.set_extent([np.min(lons)-delta, np.max(lons)+delta, np.min(lats)-delta, np.max(lats)+delta])
+    cs=ax.pcolormesh(lons,lats,no2,vmin=0,vmax=vmax, cmap=cmap)
+    
+    raw_fig = deepcopy(fig) 
+    raw_ax = deepcopy(ax)
+    
+    #fig.subplots_adjust(top=0.89,right=0.87,wspace=0.05, hspace=0.07)
+
+    fig.suptitle(title,fontsize=font_size)
+
+    #color bar
+    cbar_ax = fig.add_axes([0.88, 0.15, 0.02, 0.7])
+    fmt = matplotlib.ticker.ScalarFormatter(useMathText=True)
+    fmt.set_powerlimits((0, 0))
+    fig.colorbar(cs, cax=cbar_ax,ticks=np.linspace(0,vmax,10),format=fmt)
+    
+    plt.close(raw_fig)
+    plt.close(plt.figure(3))
+
+    if save:
+        fig.savefig(filename,dpi=500)   
+    if show:
+        plt.show()
+    return raw_fig, raw_ax
+
+# date format: YYYY-MM-DD
+def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, column = 'NO2_trop_mean', filename = 'series.png', width = 15, height = 4, show = False, save = True):
+
+    gas = 'NO2_trop'
+    column = 'NO2_trop_mean'
+    gasname = 'NO2 troposferico'
+
+    titulo = 'Serie de ' + gasname
+
+    rango=np.logical_and(df['Fecha_datetime']>= start,df['Fecha_datetime']<=end)
+    df=df[rango]
+    df=df.sort_values(by = 'Fecha_datetime')
+
+    figsize=(width,height)
+    plt.close("all")
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.plot(df.Fecha_datetime,df[column],'ro:')
+    fig.suptitle(titulo)
+    ax.grid(axis='y',alpha=0.4)
+    plt.ylabel(gasname+ ' (mol/m2)')
+    
+    if save:
+        fig.savefig(filename,bbox_inches='tight',dpi=500)
+    if show:
+        plt.show()
+    return fig,ax
+
+
+def plot_autocorr(df, lags, alpha = 0.01, width = 30, height=5, filename = 'autocorrelogram.png', column = 'NO2_trop_mean', show = False, save = True):
+
+    titulo = 'Autocorrelograma de la serie diaria'
+    df_autocor=df.loc[:,['Fecha_datetime','NO2_trop_mean']]
+
+    for i in range(lags+1):
+        df_autocor['lag_'+str(i)]=df_autocor[column].shift(i)
+
+    figsize=(width,height)
+    plt.close("all")
+    fig, ax = plt.subplots(figsize=figsize)
+    sm.graphics.tsa.plot_acf(df_autocor[column], ax=ax, lags=lags,missing='conservative')
+    #ax.bar(np.arange(1,lags+1),rho[1:],color=color_no_sig,edgecolor='black')
+    #ax.bar(np.arange(1,lags+1),rhoenmascarado[1:],color=color_significativo,edgecolor=color_significativo)
+    ax.grid(color='black',alpha=0.4)
+    ax.set_xlabel('Lags (dias)')
+    ax.set_title(titulo)
+
+    if save:
+        fig.savefig(filename,bbox_inches='tight',dpi=500)
+    if show:
+        plt.show()
+    return fig,ax
+
+#df_m un df agrupado por mes, que contiene a (al menos) ambos años enteros
+def barplot_year_cmp(df_m, year1, year2, width = 10, height=4, column = 'NO2_trop_mean', filename='compared_series.png', show = False, save = True):
+
+    col_year1 = column+str(year1)
+    col_year2 = column+str(year2)
+
+    no2_year1 = df_m[df_m.Year==year1].rename(columns = {column : col_year1})
+    no2_year2 = df_m[df_m.Year==year2].rename(columns = {column : col_year2})
+
+    df_bar = pd.merge(no2_year1, no2_year2, on = 'Month', how = 'outer')[['Month',col_year1,col_year2]]
+    df_bar = df_bar.set_index('Month')  
+    
+    figsize=(width,height)
+    fig, ax = plt.subplots(figsize=figsize)
+    ax = df_bar.plot.bar(rot=0,color=['r','y'],figsize=(width,height))
+    plt.grid(axis='y',alpha=0.5)
+
+    plt.close(plt.figure(1))
+
+    if save:
+        fig.savefig(filename,bbox_inches='tight',dpi=500)
+    if show:
+        plt.show()
+    return fig,ax
+
+
+    

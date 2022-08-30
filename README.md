@@ -14,29 +14,36 @@ El script roi.py es un poco más "interactivo" es simplemente para elegir una re
 El script date_selection.py también es un poco interactivo, pero la idea es que pueda armar una selección de días o meses a la hora de pedirle a google engine que te devuelva una serie o un mapa.
 
 ## Instrucciones de uso
-. [Estaría bueno hacer un archivo de requirements para instalar todas las librerías necesarias en un solo paso]
 . Para poder autenticar seguir las instrucciones de este link: https://developers.google.com/earth-engine/guides/python_install#expandable-2
 
 
 ## TO DO
+. armar un script de example / test razonable
+. minima documentación acá
+. para dibujar el mapa estoy usando un shp de las divisiones de argentina? como generalizo? o subo ese archivo? (gadm36_arg...) 
+. poner todo en español
+. corregir typo interanual es interannual
+
+--
+
+. polygon funciona bien pero space_date_meshgrid se rompe si no es rectangular
 . bounds de polygon redondean un poco mal (o está desfasado respecto al otro shape)
 . hacer algo que descargue los datos del mapa aun si hay algunos pixeles que tienen solo nans (geemap lo hizo)
 . cuando uso una coleccion que me pasan, agregar un chequeo que vea que el período que quiero esté adentro (cómo?)
 . agregar un chequeo de fecha bien pasada
 . está buena la solucion a lo de los reductores? pasan un arreglo de reductores y uno de nombres, tienen que medir lo mismo...
-. el plot de space lo paso a figures, no?
-. y el crear geometria a donde?
-. descargar geotiff directo? (por ahora exporta)
 . mascara
-. poner todo en español
-. antes de cerrarlo, cambiar los nombres por default de los archivos de salida para que no vayan a otra carpeta (por si no existe)(o que la cree)
-. unificar nombre parametros: filename o file_name (ver si pasa con otros tambien)
+. arreglar el warning de pandas index en lo de isocalendar
+. desarrollar la documentacion
+. reducir cantidad de bibliotecas a usar
+. crear poligonos a partir del nombre de la ciudad-prov-pais?
+
 
 <!--  fijarse qué de esto va y articularlo
 apt-get install libproj-dev proj-data proj-bin
 apt-get install libgeos-dev
-pip install cython
-pip install cartopy
 apt-get -qq install python-cartopy python3-cartopy
+
+#sugerir esto?:
 pip uninstall -y shapely    # cartopy and shapely aren't friends (early 2020)
 pip install shapely --no-binary shapely

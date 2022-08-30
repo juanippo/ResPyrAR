@@ -1,11 +1,11 @@
-import collection as col
+import utils
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.ma as ma
 import math
 import matplotlib.path
 
-col.initialize()
+utils.initialize()
 
 def max_curve(curves):
     return max(curves, key=len)
