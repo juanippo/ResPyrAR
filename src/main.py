@@ -1,12 +1,11 @@
 import ee
 import pandas as pd
 import numpy as np
-import geopandas as gpd
-import shapefile #?
+#import geopandas as gpd
+#import shapefile #?
 import isoweek 
 import json
-from dateutil.relativedelta import relativedelta #?
-import utils
+#from dateutil.relativedelta import relativedelta #?
 import datetime
 import matplotlib
 import matplotlib.cm as mpl

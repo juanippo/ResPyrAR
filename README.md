@@ -15,6 +15,7 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 
 ## Instrucciones de uso
 . Para poder autenticar seguir las instrucciones de este link: https://developers.google.com/earth-engine/guides/python_install#expandable-2
+. Para correr el test, desde la misma ubicacion que este README correr python3 -m test.test
 
 
 ## TO DO
