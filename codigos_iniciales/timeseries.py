@@ -21,7 +21,30 @@ from copy import deepcopy
 from scipy.stats import pearsonr
 import statsmodels.api as sm
 
-utils.initialize()
+
+def initialize():
+    try:
+        ee.Initialize()
+    except Exception as e:
+        ee.Authenticate()
+        ee.Initialize()
+
+initialize()
+
+def get_collection(ini,fin, sat = 'COPERNICUS/S5P/OFFL/L3_NO2', column ='tropospheric_NO2_column_number_density'):
+    collection=ee.ImageCollection(sat).select(column).filterDate(ini,fin)
+    return collection
+
+def compare_csv(filename1, filename2):
+    t1 = open(filename1, 'r')
+    t2 = open(filename2, 'r')
+    fileone = t1.readlines()
+    filetwo = t2.readlines()
+    t1.close()
+    t2.close()
+
+    return (fileone == filetwo)
+
 
 def create_reduce_region_function(geometry,
                                   reducer=ee.Reducer.mean(),
@@ -86,7 +109,7 @@ def time_series_df(roi, start, end, filename = 'NO2trop_series.csv', reducers = 
     df = pd.DataFrame({"millis": []})
 
     if collection == None:
-        collection_filter = utils.get_collection(start,end)
+        collection_filter = get_collection(start,end)
     else:
         collection_filter = collection.filterDate(start,end)
     
@@ -164,7 +187,7 @@ def ts_weeklydf(df, filename='weeklymean_df.csv', statistic = 'mean'):
 def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean', export = False):
 
     if collection == None:
-        collection= utils.get_collection(start,end)
+        collection= get_collection(start,end)
     else:
         collection = collection.filterDate(start,end)
     
@@ -189,10 +212,7 @@ def space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean', 
 
     latlon=ee.Image.pixelLonLat().addBands(collection_img)
     latlon_new = latlon.reduceRegion(reducer=ee.Reducer.toList(), geometry=roi, maxPixels=1e13,scale=1113.2,bestEffort = True)
-    #idea: ahí usar roi.bounds()
-    #despues aplico mask para lo que está en bounds pero no en roi valga null
-    # (hace eso mask? o lo deja de considerar?)
-
+    
     no2 = np.array((ee.Array(latlon_new.get('tropospheric_NO2_column_number_density')).getInfo()))
     lats = np.array((ee.Array(latlon_new.get("latitude")).getInfo()))
     lons = np.array((ee.Array(latlon_new.get("longitude")).getInfo()))  
@@ -313,7 +333,7 @@ def plot_autocorr(df, lags, alpha = 0.01, width = 30, height=5, filename = 'auto
         plt.show()
     return fig,ax
 
-#df_m un df agrupado por mes, que contiene a (al menos) ambos años enteros
+#df_m un df agrupado por mes, que contiene datos de (al menos) ambos años 
 def barplot_year_cmp(df_m, year1, year2, width = 10, height=4, column = 'NO2_trop_mean', filename='compared_series.png', show = False, save = True):
 
     col_year1 = column+str(year1)
@@ -325,12 +345,14 @@ def barplot_year_cmp(df_m, year1, year2, width = 10, height=4, column = 'NO2_tro
     df_bar = pd.merge(no2_year1, no2_year2, on = 'Month', how = 'outer')[['Month',col_year1,col_year2]]
     df_bar = df_bar.set_index('Month')  
     
+    barWidth = 0.35
     figsize=(width,height)
     fig, ax = plt.subplots(figsize=figsize)
-    ax = df_bar.plot.bar(rot=0,color=['r','y'],figsize=(width,height))
+    ax = plt.bar(no2_year1['Month'], no2_year1[col_year1], width = barWidth, color= 'tab:blue', label = col_year1)
+    ax = plt.bar(no2_year2['Month']+barWidth, no2_year2[col_year2], width = barWidth, color= 'tab:orange', label = col_year2)
+    plt.legend()
     plt.grid(axis='y',alpha=0.5)
 
-    plt.close(plt.figure(1))
 
     if save:
         fig.savefig(filename,bbox_inches='tight',dpi=500)
@@ -338,5 +360,3 @@ def barplot_year_cmp(df_m, year1, year2, width = 10, height=4, column = 'NO2_tro
         plt.show()
     return fig,ax
 
-
-    
