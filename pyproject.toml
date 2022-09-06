@@ -9,7 +9,7 @@ name = "respyrAR"
 version = "0.0.1"
 description = "Monitor air quality - Monitoreá la calidad del aire"
 readme = "README.md"
-authors = [{ name = "Juan Martín Guerrieri", email = "COMPLETAR" },{ name = "Martín Amigo", email = "martinamigo97@gmail.com"} , {name = "ObSA - CeNDIE", mail = "COMPLETAR"}]
+authors = [{ name = "Martín Amigo", email = "martinamigo97@gmail.com"}] # agrego juani y obsa-cendie, que mail?
 license = { file = "LICENSE" }
 classifiers = [
     "License :: OSI Approved :: MIT License",
@@ -32,5 +32,5 @@ dependencies = [
 ]
 requires-python = ">=3.10"
 
-[project.urls]
-Homepage = "COMPLETAR"
+# [project.urls]
+# Homepage = "COMPLETAR" hacemos otro repo?

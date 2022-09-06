@@ -21,12 +21,12 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 ## TO DO
 . armar un script de example / test razonable
 . minima documentación acá
-. para dibujar el mapa estoy usando un shp de las divisiones de argentina? como generalizo? o subo ese archivo? (gadm36_arg...) 
 . poner todo en español
 . corregir typo interanual es interannual
 
 --
 
+. para dibujar el mapa estoy usando un shp que dibuja contornos. hacer que sea opcional 
 . polygon funciona bien pero space_date_meshgrid se rompe si no es rectangular
 . bounds de polygon redondean un poco mal (o está desfasado respecto al otro shape)
 . hacer algo que descargue los datos del mapa aun si hay algunos pixeles que tienen solo nans (geemap lo hizo)
