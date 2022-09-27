@@ -15,9 +15,38 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 
 -->
 
-## Instrucciones de uso
+# Español
+
+## Instalación
+
 . Para poder autenticar seguir las instrucciones de este link: https://developers.google.com/earth-engine/guides/python_install#expandable-2
-. Para correr el test, desde la misma ubicacion que este README correr python3 -m test.test
+
+. Para poder instalar el paquete *respyrar*, primero es necesario instalar GEOS:
+
+###         Debian/Ubuntu:
+
+Correr los siguientes comandos en la terminal
+
+$ apt-get install libproj-dev proj-data proj-bin
+$ apt-get install libgeos-dev
+$ apt-get -qq install python-cartopy python3-cartopy
+
+<!-- . Para correr el test, desde la misma ubicacion que este README correr python3 -m test.test -->
+
+# English
+
+. To enable authentication follow these instructions: https://developers.google.com/earth-engine/guides/python_install#expandable-2
+
+. Before being able to install the *respyrar* package, you need to install GEOS:
+
+###         Debian/Ubuntu:
+
+Run the following commands in your terminal
+
+$ apt-get install libproj-dev proj-data proj-bin
+$ apt-get install libgeos-dev
+$ apt-get -qq install python-cartopy python3-cartopy
+
 
 <!--
 
