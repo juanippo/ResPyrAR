@@ -52,6 +52,63 @@ $ apt-get install libgeos-dev
 $ apt-get -qq install python-cartopy python3-cartopy
 ```
 
+## Functions
+
+**create_reduce_region_function(geometry, reducer=ee.Reducer.mean(),scale=1000,crs='EPSG:4326', bestEffort=True,maxPixels=1e13,tileScale=4)**
+
+Creates a region reduction function.
+
+  Creates a region reduction function intended to be used as the input function
+  to ee.ImageCollection.map() for reducing pixels intersecting a provided region
+  to a statistic for each image in a collection. See ee.Image.reduceRegion()
+  documentation for more details.
+
+Parameters:
+
+  **geometry:**
+    
+      An ee.Geometry that defines the region over which to reduce data.
+    
+  **reducer:**
+   
+      Optional; An ee.Reducer that defines the reduction method.
+
+  **scale:**
+    
+      Optional; A number that defines the nominal scale in meters of the
+      projection to work in.
+
+  **crs:**
+    
+      Optional; An ee.Projection or EPSG string ('EPSG:5070') that defines
+      the projection to work in.
+
+  **bestEffort:**
+    
+      Optional; A Boolean indicator for whether to use a larger scale if the
+      geometry contains too many pixels at the given scale for the operation
+      to succeed.
+
+  **maxPixels:**
+    
+      Optional; A number specifying the maximum number of pixels to reduce.
+    
+  **tileScale:**
+    
+      Optional; A number representing the scaling factor used to reduce
+      aggregation tile size; using a larger tileScale (e.g. 2 or 4) may enable
+      computations that run out of memory with the default.
+
+ **Returns:**
+  
+    A function that accepts an ee.Image and reduces it by region, according to
+    the provided arguments. 
+
+This function was taken from the time series tutorial for python of the Google Engine developers group  (for further information visit: https://developers.google.com/earth-engine/tutorials/community/time-series-visualization-with-altair)
+
+
+
+
 
 
 <!--
