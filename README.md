@@ -27,11 +27,11 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 
 Correr los siguientes comandos en la terminal
 
+```
 $ apt-get install libproj-dev proj-data proj-bin
-
 $ apt-get install libgeos-dev
-
 $ apt-get -qq install python-cartopy python3-cartopy
+```
 
 
 <!-- . Para correr el test, desde la misma ubicacion que este README correr python3 -m test.test -->
@@ -46,11 +46,11 @@ $ apt-get -qq install python-cartopy python3-cartopy
 
 Run the following commands in your terminal
 
+```
 $ apt-get install libproj-dev proj-data proj-bin
-
 $ apt-get install libgeos-dev
-
 $ apt-get -qq install python-cartopy python3-cartopy
+```
 
 
 
