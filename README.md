@@ -1,6 +1,6 @@
 # respyrAR
 
-En la carpeta codigos_iniciales están los script iniciales que fui armando.
+<!-- En la carpeta codigos_iniciales están los script iniciales que fui armando.
 
 La notebook es la clase que preparamos para el curso de postgrado. En ella esta explicado paso a paso el proceso de descarga de datos.
 El script tiff_generator.py toma un cuadrado de latitud y longitud y un periodo en meses. Y devuelve un mapa .tiff con la media mensual en esa región. Tiene dos versiones de funciones, una en la que traté de modularizar un poco las funciones metidas. Mi objetivo sería dejar de usar la libreria geemap. Pero no sé bien aun cómo.
@@ -13,10 +13,13 @@ El script roi.py es un poco más "interactivo" es simplemente para elegir una re
 
 El script date_selection.py también es un poco interactivo, pero la idea es que pueda armar una selección de días o meses a la hora de pedirle a google engine que te devuelva una serie o un mapa.
 
+-->
+
 ## Instrucciones de uso
 . Para poder autenticar seguir las instrucciones de este link: https://developers.google.com/earth-engine/guides/python_install#expandable-2
 . Para correr el test, desde la misma ubicacion que este README correr python3 -m test.test
 
+<!--
 
 ## TO DO
 . armar un script de example / test razonable
@@ -40,7 +43,8 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 . crear poligonos a partir del nombre de la ciudad-prov-pais?
 
 
-<!--  fijarse qué de esto va y articularlo
+<!--  NECESARIO CORRER ANTES DE INSTALAR (QUÈ PASA SI TIENEN WINDOWS?)
+
 apt-get install libproj-dev proj-data proj-bin
 apt-get install libgeos-dev
 apt-get -qq install python-cartopy python3-cartopy

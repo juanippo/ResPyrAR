@@ -131,9 +131,9 @@ def time_series_df(roi, start, end, filename = 'NO2trop_series.csv', reducers = 
 def ts_dailydf(df, filename='dailymean_df.csv', statistic = 'mean'):
     assert(statistic == 'mean' or statistic == 'median')
     if statistic == 'mean' :
-        df_daily=df.groupby(['Year','Month','Day']).mean().reset_index()
+        df_daily=df.groupby(['Year','Month','Day']).mean(numeric_only = True).reset_index()
     elif statistic == 'median':
-        df_daily=df.groupby(['Year','Month','Day']).median().reset_index()
+        df_daily=df.groupby(['Year','Month','Day']).median(numeric_only = True).reset_index()
     df_daily_c=df.groupby(['Year','Month','Day']).count().reset_index()
     df_daily['N_obs']=df_daily_c[df.columns[0]]
     df_daily['Fecha_datetime']=pd.to_datetime(df_daily['Year'].astype(str)+'-'+df_daily['Month'].astype(str)+'-'+df_daily['Day'].astype(str),format='%Y-%m-%d')
@@ -152,9 +152,9 @@ def ts_monthlydf(df, filename='monthlymean_df.csv', statistic = 'mean'):
     assert(statistic == 'mean' or statistic == 'median')
     df_daily=ts_dailydf(df, statistic = statistic)
     if statistic == 'mean' :
-        df_monthly=df_daily.groupby(['Year','Month']).mean().reset_index()
+        df_monthly=df_daily.groupby(['Year','Month']).mean(numeric_only = True).reset_index()
     elif statistic == 'median':
-        df_monthly=df_daily.groupby(['Year','Month']).median().reset_index()
+        df_monthly=df_daily.groupby(['Year','Month']).median(numeric_only = True).reset_index()
     df_monthly_c=df_daily.groupby(['Year','Month']).count().reset_index()
     df_monthly['Fecha_datetime']=pd.to_datetime(df_monthly['Year'].astype(str)+'-'+df_monthly['Month'].astype(str),format='%Y-%m')
     df_monthly.drop(columns=['Day','Weekday','N_obs'],inplace=True)
@@ -169,11 +169,11 @@ def ts_weeklydf(df, filename='weeklymean_df.csv', statistic = 'mean'):
     df_daily['Fecha_datetime']= df_daily['Fecha_datetime'] - df_daily['Weekday'].apply(lambda x : datetime.timedelta(days=x))
     #df_daily['WeekOfYear']=[isoweek.Week.withdate(d) for d in day]
     #df_daily['WeekOfYear']=pd.DatetimeIndex(df_daily['Fecha_datetime']).week
-    df_daily['WeekOfYear']=pd.Int64Index(pd.DatetimeIndex(df_daily['Fecha_datetime']).isocalendar().week)
+    df_daily['WeekOfYear']=pd.Index(pd.DatetimeIndex(df_daily['Fecha_datetime']).isocalendar().week)
     if statistic == 'mean' :
-        df_weekly=df_daily.groupby(['WeekOfYear','Fecha_datetime']).mean().reset_index()
+        df_weekly=df_daily.groupby(['WeekOfYear','Fecha_datetime']).mean(numeric_only = True).reset_index()
     if statistic == 'median':
-        df_weekly=df_daily.groupby(['WeekOfYear','Fecha_datetime']).median().reset_index()
+        df_weekly=df_daily.groupby(['WeekOfYear','Fecha_datetime']).median(numeric_only = True).reset_index()
     df_weekly_c=df_daily.groupby(['WeekOfYear']).count().reset_index()
     df_weekly['N_days']=df_weekly_c[df.columns[0]].astype(int)
     #df_weekly['Fecha_datetime']=[isoweek.Week.monday(s) for s in df_weekly.WeekOfYear.values]

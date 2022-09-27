@@ -5,8 +5,8 @@ requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "respyrAR"
-version = "0.0.1"
+name = "respyrar"
+version = "0.0.3" 
 description = "Monitor air quality - Monitoreá la calidad del aire"
 readme = "README.md"
 authors = [{ name = "Martín Amigo", email = "martinamigo97@gmail.com"}] # agrego juani y obsa-cendie, que mail?
@@ -22,10 +22,9 @@ dependencies = [
     'numpy',
     'pandas',
     'isoweek',
-    'json',
     'matplotlib',
+    'Cython',
     'cartopy',
-    'copy',
     'scipy',
     'statsmodels',
     'tomli; python_version < "3.11"',
