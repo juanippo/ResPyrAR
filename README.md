@@ -54,6 +54,29 @@ $ apt-get -qq install python-cartopy python3-cartopy
 
 ## Functions
 
+### get_collection(ini,fin, sat = 'COPERNICUS/S5P/OFFL/L3_NO2', column ='tropospheric_NO2_column_number_density')
+
+Returns the image collection (as an Earth Engine object) of a column from the indicated satellite for a determined period of time. 
+
+**Parameters:**
+
+    ini:
+
+The start date (inclusive), of Date|Number|String type.
+
+    fin:
+
+The finalization date (exclusive), of Date|Number|String type.
+
+    sat:
+
+Optional; A string indicating the desired satellite and variable. By default it is set to the L3_NO2 variable, of the S5P satellite of the Copernicus Programme, on offline mode.
+
+    column:
+
+Optional; A string indicating the desired column from. By default it is set to tropospheric NO2 column number density.
+
+
 ### create_reduce_region_function(geometry, reducer=ee.Reducer.mean(),scale=1000,crs='EPSG:4326', bestEffort=True,maxPixels=1e13,tileScale=4)
 
 Creates a region reduction function.
@@ -100,7 +123,7 @@ A function that accepts an ee.Image and reduces it by region, according to the p
 This function was taken from the time series tutorial for python of the Google Engine developers group  (for further information visit: https://developers.google.com/earth-engine/tutorials/community/time-series-visualization-with-altair)
 
 
-### fc_to_dict(ee.FeatureCollection):
+### fc_to_dict(ee.FeatureCollection)
 
 Transfers feature properties to a dictionary. The result of create_reduce_region_function applied to an `ee.ImageCollection` produces an `ee.FeatureCollection`. This data needs to be transferred to the Python kernel, but serialized feature collections are large and hard to deal with. This step defines a function to convert the feature collection to an `ee.Dictionary` where the keys are feature property names and values are corresponding lists of property values, which `pandas` can deal with handily.
 
@@ -118,7 +141,7 @@ An ee.FeatureCollection object which is a result of applying create_reduce_regio
 This function was taken from the time series tutorial for python of the Google Engine developers group  (for further information visit: https://developers.google.com/earth-engine/tutorials/community/time-series-visualization-with-altair)
 
 
-### add_date_info(df):
+### add_date_info(df)
 
 Add date columns derived from the milliseconds from Unix epoch column. The pandas library provides functions and objects for timestamps and the DataFrame object allows for easy mutation.
 Define a function to add date variables to the DataFrame: year, month, day, weekday, and day of year (DOY)
@@ -149,14 +172,14 @@ North boundary of the rectangle. Must be a float between -90° and 90°.
 
 For further information visit https://developers.google.com/earth-engine/apidocs/ee-geometry-rectangle
 
-### time_series_df(roi, start, end, filename = 'NO2trop_series.csv', reducers = [ee.Reducer.mean()], red_names = ['NO2_trop_mean'], collection = None):
+### time_series_df(roi, start, end, filename = 'NO2trop_series.csv', reducers = [ee.Reducer.mean()], red_names = ['NO2_trop_mean'], collection = None)
 
 Creates a pandas dataframe that includes the time series of the concentration of a gas measured from the Sentinel 5p TROPOMI sensor available in the Google Earth Engine api. By default, it calculates the average tropospheric NO2 series over a region of interest. 
 
 **Parameters: **
 
     roi:
-An ee.Geometry object. It can be a rectangle of latitude and longitude, or a polygon. It is the object returned by the function geometry_rectangle or geometry_polygon.
+An ee.Geometry object. It can be a rectangle of latitude and longitude, a polygon, or other Geometries. You can create a rectangle with the function `geometry_rectangle`.
 
     start: 
 A string indicating the start of the time series. The format should be 'YYYY-MM-DD'. In the case of NO2, the series begins on 2018-06-28.
@@ -179,7 +202,7 @@ The name of the google engine collection from which the data is taken. This pack
 
 <!--CONSIDERO QUE “variable” y “var_name” tienen que ser argumentos de la funcion. Para una misma colección, podríamos tomar NO2 troposferico, o TOTAL. -->
 
-### ts_dailydf(df, filename='dailymean_df.csv', statistic = 'mean'):
+### ts_dailydf(df, filename='dailymean_df.csv', statistic = 'mean')
 
 Returns a daily time series. In case of missing data in the series, it interleaves NaN values. In case of two daily data (this is possible due to overlapping of the satellite pass in some regions) returns the average 
 
@@ -196,7 +219,7 @@ In case of two daily data, returns the average.
 
 <!-- ACA TENGO DUDAS EN STATISTIC: la serie original ocmo mucho tira dos datos diarios. Hacer la media y la mediana sería lo mismo, no sé si agregar “mediana” como estadistico posible. Tiene sentido para series mensuales y semanales pero nno sé si diarias. -->
 
-### ts_monthlydf(df, filename='monthlymean_df.csv', statistic = 'mean'):
+### ts_monthlydf(df, filename='monthlymean_df.csv', statistic = 'mean')
 
 Returns a monthly series of the concentration of the chosen gas. 
 
@@ -224,11 +247,78 @@ A string indicating the name of the output file.
     statistic:
 Indicates the type of statistics to be performed on the daily data. The default case calculates the weekly average. It could be the median.
 
+### space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean', export = False)
 
+Obtains a meshgrid with the no2 values in the indicated region for the specified period.
 
+**Parameters:**
 
+    roi:
 
+An ee.Geometry object. It can be a rectangle of latitude and longitude, a polygon, or other Geometries. You can create a rectangle with the function `geometry_rectangle`. (ROI stands for Region Of Interest)
 
+    start:
+
+String indicating start date (inclusive).
+
+    end:
+
+String indicating end date (exclusive).
+
+    collection:
+
+Optional; An `ee.ImageCollection` object for the desired satellite, variable and column, and for a period containing the desired one. It can be created with `get_collection`. If the same collection is used several times, it is more efficient to get it just once and pass it as a parameter. By default it is set to None, so that it is obtained automatically.  
+    
+    statistic:
+    
+Optional; A string indicating the statistic reduction to be performed on each pixel of the spatial data for the specified period. It can be set to 'mean' or 'median'. By default it is set to 'median'. 
+
+    export:
+
+Optional; Boolean value. If set to True, exports to the Google Drive of the user the calcullated meshgrid as a GeoTIFF file. It is saved in the folder "NO2", with the filename "NO2_"+_start_ (where _start_ is the homonym parameter). By default it is set to False.
+
+**Returns:**
+
+    values:
+
+NumPy ndarray of with as many rows as different latitude values, and as many columns as different longitude values. Each cell contains the value of NO2 correspondent to the latitude and longitude (these expressed in the following objects) 
+
+    lats:
+
+NumPy ndarray of with as many rows as different latitude values, and as many columns as different longitude values. Each cell contains the correspondent latitude value.
+
+    lons: 
+
+NumPy ndarray of with as many rows as different latitude values, and as many columns as different longitude values. Each cell contains the correspondent longitude value.
+
+### interanual_variation(df_m, year1, year2, month_num, column = 'NO2_trop_mean')
+
+Calculate the interanual variation of NO2 (or the specified column) for the indicated month of two different years.
+
+**Parameters:**
+
+    df_m:
+Pandas Dataframe, collpased by month, containing data for the specified month of the specified years.
+    
+    year1:
+    
+Numeric value, the first year to be considered.
+
+    year2:
+    
+Numeric value, the second year to be considered.
+    
+    month_num:
+
+Numeric value, the number of the month to be considered (e.g. The number for January is 1, the one for April is 4, etc.).    
+    
+    column:
+
+Optional; A string with the name of the column of the dataframe to evaluate the variation over. By default it is set to 'NO2_trop_mean'.
+
+**Returns:**
+
+A float number indicating the porcentual variation of the column, in terms of the first year, i.e. (NO2 of year2 - NO2 of year1) / (NO2 of year1) .
 
 <!--
 
