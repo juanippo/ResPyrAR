@@ -62,11 +62,11 @@ Returns the image collection (as an Earth Engine object) of a column from the in
 
     ini:
 
-The start date (inclusive), of Date|Number|String type.
+The start date (inclusive), of Date/Number/String type.
 
     fin:
 
-The finalization date (exclusive), of Date|Number|String type.
+The finalization date (exclusive), of Date/Number/String type.
 
     sat:
 
@@ -74,7 +74,7 @@ Optional; A string indicating the desired satellite and variable. By default it 
 
     column:
 
-Optional; A string indicating the desired column from. By default it is set to tropospheric NO2 column number density.
+Optional; A string indicating the desired column. By default it is set to tropospheric NO2 column number density.
 
 
 ### create_reduce_region_function(geometry, reducer=ee.Reducer.mean(),scale=1000,crs='EPSG:4326', bestEffort=True,maxPixels=1e13,tileScale=4)
@@ -94,27 +94,27 @@ Creates a region reduction function.
 
     reducer:
    
-  Optional; An ee.Reducer that defines the reduction method.
+  Optional; An ee.Reducer that defines the reduction method. By default set to ee.Reducer.mean(), which calculates the mean of the specified region.
 
     scale:
     
-  Optional; A number that defines the nominal scale in meters of the projection to work in.
+  Optional; A number that defines the nominal scale in meters of the projection to work in. By default set to 1000.
 
     crs:
     
-  Optional; An ee.Projection or EPSG string ('EPSG:5070') that defines the projection to work in.
+  Optional; An ee.Projection or EPSG string ('EPSG:5070') that defines the projection to work in. By default set to 'EPSG:4326'.
 
     bestEffort:
     
-  Optional; A Boolean indicator for whether to use a larger scale if the geometry contains too many pixels at the given scale for the operation to succeed.
+  Optional; A Boolean indicator for whether to use a larger scale if the geometry contains too many pixels at the given scale for the operation to succeed. By default set to True.
 
     maxPixels:
     
-  Optional; A number specifying the maximum number of pixels to reduce.
+  Optional; A number specifying the maximum number of pixels to reduce. By default set to 1e13.
     
     tileScale:
     
-  Optional; A number representing the scaling factor used to reduce aggregation tile size; using a larger tileScale (e.g. 2 or 4) may enable computations that run out of memory with the default.
+  Optional; A number representing the scaling factor used to reduce aggregation tile size; using a larger tileScale (e.g. 2 or 4) may enable computations that run out of memory with the default. By default set to 4.
 
 **Returns:**
   
@@ -138,6 +138,10 @@ The returned `ee.Dictionary` is essentially a table, where keys define columns a
     fc: 
 An ee.FeatureCollection object which is a result of applying create_reduce_region_function to an ‘ee.ImageCollection’.
 
+**Returns:**
+
+The correspondent `ee.Dictionary`.
+
 This function was taken from the time series tutorial for python of the Google Engine developers group  (for further information visit: https://developers.google.com/earth-engine/tutorials/community/time-series-visualization-with-altair)
 
 
@@ -150,6 +154,10 @@ Define a function to add date variables to the DataFrame: year, month, day, week
 
     df:
 Pandas dataframe.
+
+**Returns:**
+
+The modified Pandas dataframe.
 
 This function was taken from the time series tutorial for python of the Google Engine developers group  (for further information visit: https://developers.google.com/earth-engine/tutorials/community/time-series-visualization-with-altair)
 
@@ -170,13 +178,17 @@ East boundary of the rectangle. Must be a float between -180° and 180°.
     lat_n:
 North boundary of the rectangle. Must be a float between -90° and 90°.
 
+**Returns:**
+
+The `ee.Geometry.Rectangle` correspondent to those coordinates.
+
 For further information visit https://developers.google.com/earth-engine/apidocs/ee-geometry-rectangle
 
 ### time_series_df(roi, start, end, filename = 'NO2trop_series.csv', reducers = [ee.Reducer.mean()], red_names = ['NO2_trop_mean'], collection = None)
 
 Creates a pandas dataframe that includes the time series of the concentration of a gas measured from the Sentinel 5p TROPOMI sensor available in the Google Earth Engine api. By default, it calculates the average tropospheric NO2 series over a region of interest. 
 
-**Parameters: **
+**Parameters:**
 
     roi:
 An ee.Geometry object. It can be a rectangle of latitude and longitude, a polygon, or other Geometries. You can create a rectangle with the function `geometry_rectangle`.
@@ -188,16 +200,20 @@ A string indicating the start of the time series. The format should be 'YYYY-MM-
 A string indicating the end of the time series. The format should be 'YYYY-MM-DD'. 
 
     filename:
-A string indicating the name of the output file.
+Optional; A string indicating the name of the output file. By default set to 'NO2trop_series.csv'.
 
     reducers:
-A list of ee.Reducer objects. For each object, a column is created in the dataframe where that spatial statistic is applied. By default, the average value over a region is taken. For more reducers, visit https://developers.google.com/earth-engine/guides/reducers_intro
+Optional; An array of ee.Reducer objects. For each object, a column is created in the dataframe where that spatial statistic is applied. By default, the average value over a region is taken. For more reducers, visit https://developers.google.com/earth-engine/guides/reducers_intro
 
     red_names:
-A list of strings indicating the name of the reducers used. It must have the same length as the list of reducers and respect the same order as the one used in it. 
+Optional; An array of strings indicating the name of the reducers used. It must have the same length as the list of reducers and respect the same order as the one used in it. By default it is an array containing only 'NO2_trop_mean'.
 
     collection:
-The name of the google engine collection from which the data is taken. This package is prepared to work with the Sentinel-5P TROPOMI data. To see the other collections available visit: https://developers.google.com/earth-engine/datasets/catalog/sentinel-5p . By default, it takes the NO2 collection.
+Optional; An `ee.ImageCollection` object for the desired satellite, variable and column, and for a period containing the desired one. It can be created with `get_collection`. If the same collection is used several times, it is more efficient to get it just once and pass it as a parameter. By default it is set to None, so that it is obtained automatically.  
+
+**Returns:**
+
+A Pandas dataframe with a column for each reducer in `reducers`, respectively named with the names in `red_names`. Also contains the columns Timestamp, Year, Month, Day and Weekday.
 
 
 <!--CONSIDERO QUE “variable” y “var_name” tienen que ser argumentos de la funcion. Para una misma colección, podríamos tomar NO2 troposferico, o TOTAL. -->
@@ -208,14 +224,17 @@ Returns a daily time series. In case of missing data in the series, it interleav
 
 **Parameters:**
     df:
-Panda dataframe with the original time series. This time series is the one that is calculated in time_series_df
+Panda dataframe with the original time series. This is the one calculated in `time_series_df`.
 
     filename:
-A string indicating the name of the output file.
+Optional; A string indicating the name of the output file. By default set to 'dailymean_df.csv'.
 
     statistic:
-In case of two daily data, returns the average.
+Optional; A string indicating the statistic reduction to be performed on each day of the time series. It can be set to 'mean' or 'median'. By default it is set to 'mean'. 
 
+**Returns:**
+
+A Pandas dataframe collapsed by day. 
 
 <!-- ACA TENGO DUDAS EN STATISTIC: la serie original ocmo mucho tira dos datos diarios. Hacer la media y la mediana sería lo mismo, no sé si agregar “mediana” como estadistico posible. Tiene sentido para series mensuales y semanales pero nno sé si diarias. -->
 
@@ -228,10 +247,14 @@ Returns a monthly series of the concentration of the chosen gas.
 Panda dataframe with the original time series. This time series is the one that is calculated in time_series_df
 
     filename:
-A string indicating the name of the output file.
+Optional; A string indicating the name of the output file. By default set to 
 
     statistic:
-Indicates the type of statistics to be performed on the daily data. The default case calculates the monthly average. It could be the median.
+Optional; A string indicating the statistic reduction to be performed on each month of the time series. It can be set to 'mean' or 'median'. By default it is set to 'mean'. 
+
+**Returns:**
+
+A Pandas dataframe collapsed by month. 
 
 ### ts_weeklydf(df, filename='weeklymean_df.csv', statistic = 'mean')
 
@@ -242,10 +265,14 @@ Returns a weekly series of the concentration of the chosen gas.
 Panda dataframe with the original time series. This time series is the one that is calculated in time_series_df
 
     filename:
-A string indicating the name of the output file.
+Optional; A string indicating the name of the output file.
 
     statistic:
-Indicates the type of statistics to be performed on the daily data. The default case calculates the weekly average. It could be the median.
+Optional; A string indicating the statistic reduction to be performed on each week of the time series. It can be set to 'mean' or 'median'. By default it is set to 'mean'. 
+
+**Returns:**
+
+A Pandas dataframe collapsed by week. 
 
 ### space_data_meshgrid(roi, start, end, collection = None, statistic = 'mean', export = False)
 
@@ -271,7 +298,7 @@ Optional; An `ee.ImageCollection` object for the desired satellite, variable and
     
     statistic:
     
-Optional; A string indicating the statistic reduction to be performed on each pixel of the spatial data for the specified period. It can be set to 'mean' or 'median'. By default it is set to 'median'. 
+Optional; A string indicating the statistic reduction to be performed on each pixel of the spatial data for the specified period. It can be set to 'mean' or 'median'. By default it is set to 'mean'. 
 
     export:
 
