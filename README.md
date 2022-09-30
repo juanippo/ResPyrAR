@@ -347,6 +347,70 @@ Optional; A string with the name of the column of the dataframe to evaluate the 
 
 A float number indicating the porcentual variation of the column, in terms of the first year, i.e. (NO2 of year2 - NO2 of year1) / (NO2 of year1) .
 
+### plot_map(no2, lats, lons, shapefile, title = 'Concentración media de NO2 troposférico (mol/m2)', filename = 'map.png', width = 8, height = 6, font_size = 15, save = True, show = False)
+
+Plots a map for the specified latitudes and longitudes, colored as indicated by `no2`. Designed to be used with the result of `space_data_meshgrid`. Can be saved, shown, and/or returned.
+
+**Parameters:**
+
+    no2:
+
+NumPy ndarray of with as many rows as different latitude values, and as many columns as different longitude values. Each cell contains the value of NO2 correspondent to the latitude and longitude (these expressed in the following objects) 
+
+    lats:
+
+NumPy ndarray of with as many rows as different latitude values, and as many columns as different longitude values. Each cell contains the correspondent latitude value.
+
+    lons: 
+
+NumPy ndarray of with as many rows as different latitude values, and as many columns as different longitude values. Each cell contains the correspondent longitude value.
+
+    shapefile:
+
+String with the path to a .shp file containing borders of the region to be drawn.
+
+    title:
+
+Optional; A string with the title the figure will show. By default it is 'Concentración media de NO2 troposférico (mol/m2)' (spanish for Tropospheric NO2 mean concentration (mol/m2)) .
+
+    filename:
+
+Optional; String with the name of the output file (in the case `save` is set to True). By default set to 'map.png'.
+
+    width:
+
+Optional; Int, the width of the figure to be generated. By default set to 8.
+
+    height:
+
+Optional; Int, the height of the figure to be generated. By default set to 6.
+
+    font_size:
+
+Optional; Int, the font size of the figure to be generated. By default set to 15.
+
+    save:
+
+Optional; Boolean value, if set to True saves the figure in the location indicated by 'filename'. By default set to True.
+
+    show:
+
+Optional; Boolean value, if set to True shows the figure with `matplotlib` interactive interface. By default set to False.
+
+**Returns:**
+
+    raw_fig, raw_ax:
+
+`matplotlib` figure and axes respectively, before adding any formatting (title, color scale, etc.)
+
+<!-- aca podria agregar una imagen final y raw, para mostrar de ejemplo -->
+
+
+### plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, column = 'NO2_trop_mean', filename = 'series.png', width = 15, height = 4, show = False, save = True)
+
+date format: YYYY-MM-DD
+
+
 <!--
 
 ## TO DO

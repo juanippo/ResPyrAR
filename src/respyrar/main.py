@@ -240,7 +240,7 @@ def interanual_variation(df_m, year1, year2, month_num, column = 'NO2_trop_mean'
 
 # Figures
 
-def plot_map(no2, lats, lons, shapefile, title = 'Concentración media de NO2 troposférico (mol/m2)', filename = 'entero.png', width = 8, height = 6, font_size = 15, save = True, show = False):
+def plot_map(no2, lats, lons, shapefile, title = 'Concentración media de NO2 troposférico (mol/m2)', filename = 'map.png', width = 8, height = 6, font_size = 15, save = True, show = False):
 
     data = shapereader.Reader(shapefile)
 
@@ -283,11 +283,10 @@ def plot_map(no2, lats, lons, shapefile, title = 'Concentración media de NO2 tr
 # date format: YYYY-MM-DD
 def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, column = 'NO2_trop_mean', filename = 'series.png', width = 15, height = 4, show = False, save = True):
 
-    gas = 'NO2_trop'
-    column = 'NO2_trop_mean'
-    gasname = 'NO2 troposferico'
+    #gas = 'NO2_trop'
+    gasname = 'Tropospheric NO2'
 
-    titulo = 'Serie de ' + gasname
+    title = gasname + 'series'
 
     rango=np.logical_and(df['Fecha_datetime']>= start,df['Fecha_datetime']<=end)
     df=df[rango]
@@ -297,7 +296,7 @@ def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, column = '
     plt.close("all")
     fig, ax = plt.subplots(figsize=figsize)
     ax.plot(df.Fecha_datetime,df[column],'ro:')
-    fig.suptitle(titulo)
+    fig.suptitle(title)
     ax.grid(axis='y',alpha=0.4)
     plt.ylabel(gasname+ ' (mol/m2)')
     
@@ -310,7 +309,7 @@ def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, column = '
 
 def plot_autocorr(df, lags, alpha = 0.01, width = 30, height=5, filename = 'autocorrelogram.png', column = 'NO2_trop_mean', show = False, save = True):
 
-    titulo = 'Autocorrelograma de la serie diaria'
+    title = 'Autocorrelograma de la serie diaria'
     df_autocor=df.loc[:,['Fecha_datetime','NO2_trop_mean']]
 
     for i in range(lags+1):
@@ -324,7 +323,7 @@ def plot_autocorr(df, lags, alpha = 0.01, width = 30, height=5, filename = 'auto
     #ax.bar(np.arange(1,lags+1),rhoenmascarado[1:],color=color_significativo,edgecolor=color_significativo)
     ax.grid(color='black',alpha=0.4)
     ax.set_xlabel('Lags (dias)')
-    ax.set_title(titulo)
+    ax.set_title(title)
 
     if save:
         fig.savefig(filename,bbox_inches='tight',dpi=500)
