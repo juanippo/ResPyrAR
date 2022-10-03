@@ -281,7 +281,7 @@ def plot_map(no2, lats, lons, shapefile, title = 'Concentración media de NO2 tr
     return raw_fig, raw_ax
 
 # date format: YYYY-MM-DD
-def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, column = 'NO2_trop_mean', filename = 'series.png', width = 15, height = 4, show = False, save = True):
+def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, column = 'NO2_trop_mean', filename = 'series.png', width = 15, height = 4, save = True, show = False):
 
     #gas = 'NO2_trop'
     gasname = 'Tropospheric NO2'
@@ -307,7 +307,7 @@ def plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, column = '
     return fig,ax
 
 
-def plot_autocorr(df, lags, alpha = 0.01, width = 30, height=5, filename = 'autocorrelogram.png', column = 'NO2_trop_mean', show = False, save = True):
+def plot_autocorr(df, lags, column = 'NO2_trop_mean', filename = 'autocorrelogram.png', width = 30, height=5, save = True, show = False):
 
     title = 'Autocorrelograma de la serie diaria'
     df_autocor=df.loc[:,['Fecha_datetime','NO2_trop_mean']]
@@ -332,7 +332,7 @@ def plot_autocorr(df, lags, alpha = 0.01, width = 30, height=5, filename = 'auto
     return fig,ax
 
 #df_m un df agrupado por mes, que contiene datos de (al menos) ambos años 
-def barplot_year_cmp(df_m, year1, year2, width = 10, height=4, column = 'NO2_trop_mean', filename='compared_series.png', show = False, save = True):
+def barplot_year_cmp(df_m, year1, year2, column = 'NO2_trop_mean', filename='compared_series.png', width = 10, height=4, save = True, show = False):
 
     col_year1 = column+str(year1)
     col_year2 = column+str(year2)

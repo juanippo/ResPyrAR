@@ -406,9 +406,145 @@ Optional; Boolean value, if set to True shows the figure with `matplotlib` inter
 <!-- aca podria agregar una imagen final y raw, para mostrar de ejemplo -->
 
 
-### plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, column = 'NO2_trop_mean', filename = 'series.png', width = 15, height = 4, show = False, save = True)
+### plot_series(df, start = pd.Timestamp.min, end = pd.Timestamp.max, column = 'NO2_trop_mean', filename = 'series.png', width = 15, height = 4, save = True, show = False)
 
-date format: YYYY-MM-DD
+Plot the time series passed as a Pandas dataframe.
+
+**Parameters:**
+
+    df:
+
+Pandas dataframe, with a 'Fecha_datetime' column containing timestamps in YYYY-MM-DD date format.
+
+    start:
+
+Optional; String in YYYY-MM-DD date format indicating start time. Values previous to this date won't be plotted. By default set to Pandas minimum timestamp (no filter).
+
+    end:
+
+Optional; String in YYYY-MM-DD date format indicating end time. Values posterior to this date won't be plotted. By default set to Pandas maximum timestamp (no filter).
+
+    column:
+
+Optional; String indicating the dataframe column name from which to plot values. By default set to 'NO2_trop_mean'.
+
+    filename:
+
+Optional; String with the name of the output file (in the case `save` is set to True). By default set to 'series.png'.
+
+    width:
+
+Optional; Int, the width of the figure to be generated. By default set to 15.
+
+    height:
+
+Optional; Int, the height of the figure to be generated. By default set to 4.
+
+    save:
+
+Optional; Boolean value, if set to True saves the figure in the location indicated by 'filename'. By default set to True.
+
+    show:
+
+Optional; Boolean value, if set to True shows the figure with `matplotlib` interactive interface. By default set to False.
+
+**Returns:**
+
+    fig, ax:
+
+`matplotlib` figure and axes, respectively.
+
+
+### plot_autocorr(df, lags, column = 'NO2_trop_mean', filename = 'autocorrelogram.png', width = 30, height=5, save = True, show = False)
+
+Plot autocorrelogram of the indicated dataframe. Plots lags on the horizontal and the correlations on vertical axis.  
+
+    df:
+
+Pandas dataframe, with a 'Fecha_datetime' column containing timestamps in YYYY-MM-DD date format.
+
+    lags:
+
+An int or array of lag values, used on horizontal axis. Uses np.arange(lags) when lags is an int.
+
+    column:
+
+Optional; String indicating the dataframe column name from which to plot values. By default set to 'NO2_trop_mean'.
+
+    filename:
+
+Optional; String with the name of the output file (in the case `save` is set to True). By default set to 'autocorrelogram.png'.
+
+    width:
+
+Optional; Int, the width of the figure to be generated. By default set to 30.
+
+    height:
+
+Optional; Int, the height of the figure to be generated. By default set to 5.
+
+    save:
+
+Optional; Boolean value, if set to True saves the figure in the location indicated by 'filename'. By default set to True.
+
+    show:
+
+Optional; Boolean value, if set to True shows the figure with `matplotlib` interactive interface. By default set to False.
+
+**Returns:**
+
+    fig, ax:
+
+`matplotlib` figure and axes, respectively.
+
+### barplot_year_cmp(df_m, year1, year2, column = 'NO2_trop_mean', filename='compared_series.png', width = 10, height=4, save = True, show = False)
+
+Draw a bar graph comparing the monthly values between two years.
+
+**Parameters:**
+
+    df_m:
+    
+Pandas dataframe aggregated by month, and containing at least some values for the indicated years.    
+    
+    year1:
+    
+One of the years to be compared, as Int/String.
+    
+    year2:
+
+The other of the years to be compared, as Int/String.  
+
+    column:
+
+Optional; String indicating the dataframe column name from which to plot values. By default set to 'NO2_trop_mean'.
+
+    filename:
+
+Optional; String with the name of the output file (in the case `save` is set to True). By default set to 'compared_series.png'.
+
+    width:
+
+Optional; Int, the width of the figure to be generated. By default set to 10.
+
+    height:
+
+Optional; Int, the height of the figure to be generated. By default set to 4.
+
+    save:
+
+Optional; Boolean value, if set to True saves the figure in the location indicated by 'filename'. By default set to True.
+
+    show:
+
+Optional; Boolean value, if set to True shows the figure with `matplotlib` interactive interface. By default set to False.
+
+**Returns:**
+
+    fig, ax:
+
+`matplotlib` figure and axes, respectively.
+
 
 
 <!--
