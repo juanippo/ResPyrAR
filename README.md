@@ -19,38 +19,39 @@ El script date_selection.py también es un poco interactivo, pero la idea es que
 
 ## Instalación
 
-. Para poder autenticar seguir las instrucciones de este link: https://developers.google.com/earth-engine/guides/python_install#expandable-2
+1. Para poder autenticar seguir las instrucciones de este [link](https://developers.google.com/earth-engine/guides/python_install#expandable-2 "Authentication")
 
-. Para poder instalar el paquete *respyrar*, primero es necesario instalar GEOS:
-
-###         Debian/Ubuntu:
-
-Correr los siguientes comandos en la terminal
+2. Para poder instalar dependencias del paquete *respyrar* (en particular la bilbioteca ```cartopy```), primero es necesario instalar algunas dependencias. Se puede encontrar información detallada para Linux, Windows y iOS [aquí](https://scitools.org.uk/cartopy/docs/latest/installing.html "Cartopy") y particularmente para Windows [aquí](https://stackoverflow.com/questions/70177062/cartopy-not-able-to-identify-geos-for-proj-install-on-windows "Cartopy on Windows"). Para sistemas de linux basados en Debian (como Ubuntu) alcanza con correr los siguientes comandos en la terminal:
 
 ```
 $ apt-get install libproj-dev proj-data proj-bin
 $ apt-get install libgeos-dev
 $ apt-get -qq install python-cartopy python3-cartopy
 ```
+3. Una vez resueltos estos dos pasos, sólo queda instalar el paquete ejecutando en la terminal el siguiente comando
 
-
-<!-- . Para correr el test, desde la misma ubicacion que este README correr python3 -m test.test -->
+```
+$ pip install respyrar
+```
 
 # English
 
-. To enable authentication follow these instructions: https://developers.google.com/earth-engine/guides/python_install#expandable-2
+1. To enable authentication follow [these](https://developers.google.com/earth-engine/guides/python_install#expandable-2 "Authentication") instructions.
 
-. Before being able to install the *respyrar* package, you need to install GEOS:
-
-###         Debian/Ubuntu:
-
-Run the following commands in your terminal
+2. Before installing *respyrar* you'll need to enable some dependencies installation (particularly, ```cartopy```). You can find detailed instructions for  Linux, Windows and iOS [here](https://scitools.org.uk/cartopy/docs/latest/installing.html "Cartopy") and particularly  for Windows [here](https://stackoverflow.com/questions/70177062/cartopy-not-able-to-identify-geos-for-proj-install-on-windows "Cartopy on Windows"). For Debian-based linux systems (like Ubuntu) run the following commands in your terminal:
 
 ```
 $ apt-get install libproj-dev proj-data proj-bin
 $ apt-get install libgeos-dev
 $ apt-get -qq install python-cartopy python3-cartopy
 ```
+
+3. Once these two steps are completed, all you need to do is run the following command
+
+```
+$ pip install respyrar
+```
+
 
 ## Functions
 
